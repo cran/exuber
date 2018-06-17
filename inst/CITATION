@@ -1,0 +1,17 @@
+
+citHeader("To cite exuber in publications as:")
+
+citEntry(
+  entry="Manual",
+  title = "exuber: Testing and Simulating Explosive Periods",
+  author       = personList(as.person("Kostas Vasilopoulos"),
+                   as.person("Themis Pavlidis"),
+                   as.person("Simon Spavound")),
+  year = "2018",
+  note = "R package version 0.1.0",
+
+  textVersion  =
+
+  paste("Vasilopoulos Kostas, Pavlidis Eftymios and Spavound Simon (2018).",
+        "exuber: Testing and Simulating Explosive Periods")
+)
