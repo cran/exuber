@@ -4,21 +4,16 @@
 \alias{wb_cv}
 \title{Wild Bootstrap Critical values}
 \usage{
-wb_cv(y, nboot = 1000, minw, parallel = FALSE, ncores, dist_rad = FALSE)
+wb_cv(data, minw, nboot = 1000, dist_rad = FALSE)
 }
 \arguments{
-\item{y}{A data.frame or matrix containing the data.}
-
-\item{nboot}{A positive integer indicating the number of bootstraps. Default is 1000 repetitions.}
+\item{data}{A univariate or multivariate numeric ts object, data.frame or matrix.
+The estimation process cannot handle NA values.}
 
 \item{minw}{A positive integer. The minimum window size, which defaults to
-\eqn{0.01 + 1.8/\sqrt(T)}{0.01 + 1.8 / \sqrtT}.}
+\eqn{(0.01 + 1.8/\sqrt(T))*T}{(0.01 + 1.8 / \sqrtT)*T}.}
 
-\item{parallel}{Logical. If \code{TRUE} parallel programming is used.}
-
-\item{ncores}{A positive integer, optional. If `parallel' is set to
-\code{TRUE}, then the user can specify the number of cores (defaults to
-using all cores).}
+\item{nboot}{A positive integer indicating the number of bootstraps. Default is 1000 repetitions.}
 
 \item{dist_rad}{Logical. If \code{TRUE} then  the Rademacher distribution
 will be used.}
@@ -34,29 +29,32 @@ generate critical values for the recursive unit root tests.
 }
 \details{
 This approach involves applying a wild bootstrap re-sampling scheme
-to construct the bootstrap analogue of the PWY test which is asymptotically
-robust to non-stationary volatility.
+to construct the bootstrap analogue of the Phillips et al. (2015) test which
+is asymptotically robust to non-stationary volatility.
 }
 \examples{
 \donttest{
 # Simulate bubble processes
-dta <- cbind(sim_dgp1(n = 100), sim_dgp2(n = 100))
+dta <- data.frame("dg1" = sim_dgp1(n = 100), "dgp2" = sim_dgp2(n = 100))
 
 # Default minimum window
-wb <- wb_cv(y = dta)
+wb <- wb_cv(dta)
 
 # Change the minimum window and the number of bootstraps
-wb <- wb_cv(y = dta, nboot = 1500,  minw = 20)
+wb <- wb_cv(dta, nboot = 1500,  minw = 20)
 
-# Use parallel computing (utilizing all available cores)
-wb <- wb_cv(y = dta, parallel = TRUE)
 }
 }
 \references{
 Harvey, D. I., Leybourne, S. J., Sollis, R., & Taylor, A. M. R.
 (2016). Tests for explosive financial bubbles in the presence of
 non-stationary volatility. Journal of Empirical Finance, 38(Part B), 548-574.
+
+Phillips, P. C. B., Shi, S., & Yu, J. (2015). Testing for
+Multiple Bubbles: Historical Episodes of Exuberance and Collapse in the
+S&P 500. International Economic Review, 56(4), 1043-1078.
 }
 \seealso{
-\code{\link{mc_cv}} for Monte Carlo critical values
+\code{\link{mc_cv}} for Monte Carlo critical values and
+\code{\link{sb_cv}} for Sieve Bootstrapped critical values
 }

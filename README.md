@@ -8,28 +8,49 @@ Status](https://travis-ci.org/kvasilopoulos/exuber.svg?branch=master)](https://t
 [![AppVeyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/kvasilopoulos/exuber?branch=master&svg=true)](https://ci.appveyor.com/project/kvasilopoulos/exuber)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/exuber)](https://cran.r-project.org/package=exuber)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 [![codecov](https://codecov.io/gh/kvasilopoulos/exuber/branch/master/graph/badge.svg)](https://codecov.io/gh/kvasilopoulos/exuber)
 
 ## Description
 
 Testing for and dating periods of explosive dynamics (exuberance) in
-time series using recursive unit root tests as proposed by Phillips, P.
-C., Shi, S. and Yu, J. (2015a) \<:10.1111/iere.12132\>. Simulate a
-variety of periodically-collapsing bubble models. The estimation and
-simulation utilize the matrix inversion lemma from the recursive least
-squares algorithm, which results in a significant speed improvement.
+time series using recursive unit root tests as proposed by [Phillips, P.
+C., Shi, S. and Yu, J. (2015a)](https://doi.org/10.1111/iere.12132).
+Simulate a variety of periodically-collapsing bubble models. The
+estimation and simulation utilize the matrix inversion lemma from the
+recursive least squares algorithm, which results in a significant speed
+improvement.
 
 ## Overview
 
+### Estimation
+
   - `radf()` : Recursive Augmented Dickey-Fuller test
-  - `mc_cv()` : Monte Carlo Critical Values
-  - `wb_cv()` : Wild Bootstrap Critical values
+
+### Simulate custom critical values
+
+  - `mc_cv()` : Monte Carlo critical values
+  - `wb_cv()` : Wild Bootstrap critical values
+  - `sb_cv()` : Sieve Bootstrap (panel) critical values
+
+### Simulation
+
+  - `sim_dgp1()` : Simulation of a single-bubble process
+  - `sim_dgp2()` : Simulation of a two-bubble process
+  - `sim_blan()` : Simulation of a Blanchard (1979) bubble process
+  - `sim_evans()` : Simulation of a Evans (1991) bubble process
+  - `sim_div()` : Simulation of dividends
 
 ## Installation
 
-The package is still under development, to install the development
-version from GitHub:
+You can install the released version of exuber from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("exuber")
+```
+
+And the development version from [GitHub](https://github.com/) with:
 
 ``` r
 if(!require(devtools)) install.packages("devtools")
@@ -42,7 +63,7 @@ will need the appropriate development tools.
   - Window Users should install
     [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
   - Mac User should install [Clang or GNU
-    Fortran](https://cran.r-project.org/bin/macosx/tools/)
+    Fortran](https://cran.r-project.org/bin/macosx/tools/).
 
 If you encounter a clear bug, please file a reproducible example on
 [GitHub](https://github.com/kvasilopoulos/exuber/issues).
@@ -54,50 +75,79 @@ This is a basic example which shows you how to use exuber:
 ``` r
 library(exuber)
 # Simulate data witn n = 100 observations
-set.seed(123)
-a1 <- sim_dgp1(n = 100) # one bubble
-a2 <- sim_dgp2(n = 100) # two bubbles
-a3 <- sim_blan(n = 100) # blanchard model
-a4 <- sim_evans(n = 100) # evans model
+set.seed(112)
+sim1 <- sim_dgp1(n = 100) # one bubble
+sim2 <- sim_dgp2(n = 100) # two bubbles
 
-dta <- data.frame("oneb" = a1, "twob" = a2, "blan" = a3, "evans" = a4)
+dta <- data.frame("onebubble" = sim1, 
+                  "twobbubbles" = sim2)
 
-ts <- radf(dfrm, lag = 1)
-
-# Critical Values mc = Monte Carlo, wb= Wild Bootstrapped
-## Use 500 repetions(boostraps) for faster computation
-mc <- mc_cv(n = NROW(dta), nrep = 500, parallel = T)
-wb <- wb_cv(dta, nboot = 500, parallel = T)
+ts <- radf(dta, lag = 1)
 ```
 
-### Report
-
-Report summary statistics, diagnostics and date stamping periods of
-mildly explosive behaviour.
+Report t-stats with the assiged critical values
 
 ``` r
-report(ts, mc)
-diagnostics(ts, mc)
-datestamp(ts, mc)
+summary(ts)
+#> 
+#>  Recursive Unit Root
+#>  ----------------------------------
+#>  H0: Unit root
+#>  H1: Explosive root
+#>  ----------------------------------
+#>  Critical values: Monte Carlo 
+#>  Minimum window: 19 
+#>  Iterations: 2000 
+#>  Lag: 1 
+#>  ----------------------------------
+#>  onebubble 
+#>         tstat      90%      95%     99%
+#> ADF    -2.304  -0.4035  -0.0762  0.5104
+#> SADF    4.522   1.0074   1.3484  1.9454
+#> GSADF   4.718   1.6942   1.9259  2.6191
+#> 
+#>  twobbubbles 
+#>         tstat      90%      95%     99%
+#> ADF    -2.411  -0.4035  -0.0762  0.5104
+#> SADF    4.057   1.0074   1.3484  1.9454
+#> GSADF   5.571   1.6942   1.9259  2.6191
+```
+
+Date stamp periods of explosive behaviour
+
+``` r
+datestamp(ts)
+#> 
+#> Datestamp: Individual
+#>  -----------------------------------
+#> onebubble :
+#>   Start End Duration
+#> 1    40  55       16
+#> 
+#> twobbubbles :
+#>   Start End Duration
+#> 1    24  40       17
+#> 2    62  70        9
 ```
 
 ### Plotting
 
-The output of plot will be a list,
+The output of autoplot is a list of ggplots
 
 ``` r
-# All together
-plot(ts, mc, plot_type = "single", breaks_x = 20)
-
-# Individually
-plot(ts, mc, plot_type = "multiple", breaks_x = 20)
-
-library(gridExtra)
-p1 <- plot(ts, mc, plot_type = "multiple", breaks_x = 20, breaks_y = 3)
-do.call("grid.arrange", c(p1, ncol = 2))
+ts %>% 
+  autoplot() %>% 
+  ggarrange()
 ```
 
------
+<img src="inst/figures/readme.png" width="900"/>
+
+#### License
+
+This package is free and open source software, licensed under
+[GPL-3](https://github.com/kvasilopoulos/exuber/blob/master/LICENSE).
+
+#### Code of Conduct
 
 Please note that this project is released with a [Contributor Code of
 Conduct](https://github.com/kvasilopoulos/exuber/blob/master/CONDUCT.md).

@@ -2,7 +2,7 @@
 % Please edit documentation in R/simul.R
 \name{sim_blan}
 \alias{sim_blan}
-\title{Simulation of Bubble Processes à la Blanchard (1979)}
+\title{Simulation of a Blanchard (1979) bubble process}
 \usage{
 sim_blan(n, pi = 0.7, sigma = 0.03, r = 0.05)
 }
@@ -19,7 +19,7 @@ sim_blan(n, pi = 0.7, sigma = 0.03, r = 0.05)
 A numeric vector of length \code{n}.
 }
 \description{
-Simulation à la Blanchard (1979)
+Simulation of a Blanchard (1979) rational bubble process.
 }
 \details{
 Blanchard's bubble process has two regimes, which occur with probability \eqn{\pi} and \eqn{1-\pi}.
@@ -41,5 +41,5 @@ Blanchard, O. J. (1979). Speculative bubbles, crashes and rational expectations.
 Economics letters, 3(4), 387-389.
 }
 \seealso{
-\code{\link{sim_dgp1}}, \code{\link{sim_dgp1}}, \code{\link{sim_evans}}
+\code{\link{sim_dgp1}}, \code{\link{sim_dgp2}}, \code{\link{sim_evans}}
 }

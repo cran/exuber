@@ -2,26 +2,26 @@
 % Please edit documentation in R/radf.R
 \name{radf}
 \alias{radf}
-\title{Recursive Augmented Dickey-Fuller test}
+\title{Recursive Augmented Dickey-Fuller Test}
 \usage{
-radf(x, minw, lag = 0)
+radf(data, minw, lag = 0)
 }
 \arguments{
-\item{x}{A univariate or multivariate numeric ts object, data.frame or matrix.
+\item{data}{A univariate or multivariate numeric ts object, data.frame or matrix.
 The estimation process cannot handle NA values.}
 
 \item{minw}{A positive integer. The minimum window size, which defaults to
-\eqn{0.01 + 1.8/\sqrt(T)}{0.01 + 1.8 / \sqrtT}.}
+\eqn{(0.01 + 1.8/\sqrt(T))*T}{(0.01 + 1.8 / \sqrtT)*T}.}
 
 \item{lag}{A non-negative integer. The lag of the Augmented Dickey-Fuller regression.}
 }
 \value{
 A list that contains the t-statistic (sequence) for:
-  \item{ADF}{Augmented Dickey-Fuller.}
-  \item{BADF}{Backward Augmented Dickey-Fuller.}
-  \item{SADF}{Supremum Augmented Dickey-Fuller.}
-  \item{BSADF}{Backward Supremum Augmented Dickey-Fuller.}
-  \item{GSADF}{Generalized Supremum Augmented Dickey Fuller.}
+  \item{adf}{Augmented Dickey-Fuller}
+  \item{badf}{Backward Augmented Dickey-Fuller}
+  \item{sadf}{Supremum Augmented Dickey-Fuller}
+  \item{bsadf}{Backward Supremum Augmented Dickey-Fuller}
+  \item{gsadf}{Generalized Supremum Augmented Dickey-Fuller}
 }
 \description{
 \code{radf} returns the t-statistics from a recursive Augmented Dickey-Fuller
@@ -32,10 +32,10 @@ test.
 # Simulate bubble processes
 dta <- cbind(sim_dgp1(n = 100), sim_dgp2(n = 100))
 
-rfd <- radf(x = dta)
+rfd <- radf(dta)
 
 # For lag = 1 and minimum window = 20
-rfd <- radf(x = dta, minw = 20, lag = 1)
+rfd <- radf(dta, minw = 20, lag = 1)
 }
 }
 \references{
