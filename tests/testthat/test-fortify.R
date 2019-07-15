@@ -3,12 +3,12 @@ context("fortify")
 test_that("basic", {
   fort <- radf_dta %>% fortify()
   expect_equal(col_names(fort), c("index", diagnostics(radf_dta)$accepted, "cv"))
-  expect_equal(index(radf_dta, trunc = TRUE), fort$index )
+  expect_equal(index(radf_dta, trunc = TRUE), fort$index)
 })
 
 test_that("select", {
   fort_1 <- radf_dta %>% fortify(select = 1)
-  fort_dgp1 <- radf_dta %>% fortify(select = "dgp1")
+  fort_dgp1 <- radf_dta %>% fortify(select = "psy1")
   expect_equal(fort_1, fort_dgp1)
   expect_error(radf_dta %>% fortify(select = "div"), "subscript out of bounds")
 })
@@ -20,7 +20,7 @@ test_that("panel", {
   expect_warning(radf_dta %>% fortify(cv = sb, select = 1), warn_select)
 
   w <- capture_warnings(radf_dta %>%
-                          fortify(cv = sb, include = TRUE, select = 1))
+    fortify(cv = sb, include = TRUE, select = 1))
   expect_match(w[1], warn_select)
   expect_match(w[2], warn_include)
 })
@@ -31,7 +31,7 @@ test_that("include = TRUE & select = 'div'", {
   fort_1 <- radf_dta %>% fortify(include = TRUE, select = 1)
   expect_equal(col_names(fort_1), c("index", colnames(dta)[1], "cv"))
 
-  #div is there
+  # div is there
   fort_4 <- radf_dta %>% fortify(include = TRUE, select = 4)
   fort_div <- radf_dta %>% fortify(include = TRUE, select = "div")
   expect_equal(fort_4, fort_div)
@@ -61,17 +61,25 @@ test_that("fortify- datestamp", {
   fort <- radf_dta %>% datestamp() %>% fortify()
   fort_panel <- radf_dta %>% datestamp(cv = sb) %>% fortify()
 
-  expect_equal(fort %>% dim(), c(9, 4))
-  expect_equal(radf_dta %>% datestamp(cv = wb) %>%
-                 fortify() %>% dim(), c(4, 4))
+  expect_equal(fort %>% dim(), c(8, 4))
+  expect_equal(radf_dta %>%
+    datestamp(cv = wb) %>%
+    fortify() %>%
+    dim(), c(4, 4))
   expect_equal(fort_panel %>% dim(), c(3, 4))
-  expect_equal(rbind(fort, fort_panel) %>% dim(), c(12, 4))
+  expect_equal(rbind(fort, fort_panel) %>% dim(), c(11, 4))
 
-  # Rest of the arguement
-  expect_equal(radf_dta %>% datestamp(min_duration = 10) %>%
-                 fortify() %>% dim(), c(2, 4))
-  expect_equal(radf_dta %>% datestamp(option = "sadf") %>%
-                 fortify() %>% dim(), c(3, 4))
-  expect_equal(radf_dta %>% datestamp(option = "sadf", min_duration = 10) %>%
-                 fortify() %>% dim(), c(2, 4))
+  # Rest of the argument
+  expect_equal(radf_dta %>%
+    datestamp(min_duration = 10) %>%
+    fortify() %>%
+    dim(), c(2, 4))
+  expect_equal(radf_dta %>%
+    datestamp(option = "sadf") %>%
+    fortify() %>%
+    dim(), c(3, 4))
+  expect_equal(radf_dta %>%
+    datestamp(option = "sadf", min_duration = 10) %>%
+    fortify() %>%
+    dim(), c(2, 4))
 })

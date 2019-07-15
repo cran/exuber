@@ -4,7 +4,8 @@
 \alias{sim_div}
 \title{Simulation of dividends}
 \usage{
-sim_div(n, mu, sigma, r = 0.05, log = FALSE, output = c("pf", "d"))
+sim_div(n, mu, sigma, r = 0.05, log = FALSE, output = c("pf", "d"),
+  seed = NULL)
 }
 \arguments{
 \item{n}{A strictly positive integer specifying the length of the simulated output series.}
@@ -19,6 +20,12 @@ sim_div(n, mu, sigma, r = 0.05, log = FALSE, output = c("pf", "d"))
 
 \item{output}{A character string giving the fundamental price("pf") or
 dividend series("d"). Default is `pf'.}
+
+\item{seed}{An object specifying if and how the random number generator(rng)
+should be initialized. Either NULL or an integer will be used in a call to
+\code{set.seed} before simulation. If set, the value is save as "seed" attribute
+of the returned value. The default, NULL will note change the rng state, and
+return .Random.seed as the "seed" attribute.}
 }
 \value{
 A numeric vector of length n.
@@ -54,7 +61,7 @@ All default parameter values are those suggested by West (1988).
 # 20 is the scaling factor
 pf <- sim_div(100, r = 0.05, output = "pf")
 pb <- sim_evans(100, r = 0.05)
-p <- pf + 20*pb
+p <- pf + 20 * pb
 }
 \references{
 West, K. D. (1988). Dividend innovations and stock price volatility.

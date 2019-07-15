@@ -5,7 +5,7 @@
 \title{Simulation of an Evans (1991) bubble process}
 \usage{
 sim_evans(n, alpha = 1, delta = 0.5, tau = 0.05, pi = 0.7,
-  r = 0.05, b1 = delta)
+  r = 0.05, b1 = delta, seed = NULL)
 }
 \arguments{
 \item{n}{A strictly positive integer specifying the length of the simulated output series.}
@@ -21,6 +21,12 @@ sim_evans(n, alpha = 1, delta = 0.5, tau = 0.05, pi = 0.7,
 \item{r}{A positive scalar that determines the growth rate of the bubble process.}
 
 \item{b1}{A positive scalar, the initial value of the series. Defaults to \code{delta}.}
+
+\item{seed}{An object specifying if and how the random number generator(rng)
+should be initialized. Either NULL or an integer will be used in a call to
+\code{set.seed} before simulation. If set, the value is save as "seed" attribute
+of the returned value. The default, NULL will note change the rng state, and
+return .Random.seed as the "seed" attribute.}
 }
 \value{
 A numeric vector of length \code{n}.
@@ -51,5 +57,5 @@ Evans, G. W. (1991). Pitfalls in testing for explosive
 bubbles in asset prices. The American Economic Review, 81(4), 922-930.
 }
 \seealso{
-\code{\link{sim_dgp1}}, \code{\link{sim_dgp2}}, \code{\link{sim_blan}}
+\code{\link{sim_psy1}}, \code{\link{sim_psy2}}, \code{\link{sim_blan}}
 }

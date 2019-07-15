@@ -1,120 +1,126 @@
-#' Pipe operator
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @export
-#' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
-NULL
+
+"%ni%" <- Negate("%in%")
+
+# For simulation ----------------------------------------------------------
+
+get_rng <- function(seed) {
+  if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+    runif(1)
+  if (is.null(seed)) {
+    RNGstate <- get(".Random.seed", envir = .GlobalEnv)
+  }else {
+    R.seed <- get(".Random.seed", envir = .GlobalEnv)
+    RNGstate <- structure(seed, kind = as.list(RNGkind()))
+    on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+  }
+  RNGstate
+}
+
+check_seed <- function() {
+  option_seed <- getOption("exuber.global_seed")
+  if (!is.na(option_seed) && !is.null(option_seed)) {
+    option_seed
+  }else{
+    NULL
+  }
+}
+
+set_rng <- function(seed) {
+  rng_state <- get_rng(seed)
+  global_seed <- check_seed()
+  if (!is.null(seed)) {
+    set.seed(seed)
+  } else if (!is.null(global_seed)) {
+    set.seed(global_seed)
+  }
+  rng_state
+}
 
 # get crit data --------------------------------------------------------
 
-get_crit <- function(x) {
-    nr <- NROW(index(x))
-    if (nr > 5 && nr <= length(crit)) {
-      return(get("crit")[[nr]])
-    } else {
-      stop("cannot provide MC critical values see help(crit)", call. = FALSE)
-    }
-}
-
-
-# is_panel ----------------------------------------------------------------
-
-is_panel <- function(y) {
-  assert_class(y, "cv")
-  res <- if (method(y) == "Sieve Bootstrap") TRUE else FALSE
-  res
-}
-
-# remove index ----------------------------------------------------------
-
-#' @importFrom purrr detect_index
-#' @importFrom lubridate is.Date
-rm_index <- function(data) {
-  if (is.data.frame(data)) {
-    date_index <- purrr::detect_index(data, lubridate::is.Date)
-    if (as.logical(date_index)) data <- data[, -date_index, drop = FALSE]
+retrieve_crit <- function(x) {
+  nr <- NROW(index(x))
+  if (nr > 5 && nr <= length(crit)) {
+    return(get("crit")[[nr]])
+  } else {
+    stop_glue("cannot provide MC critical values see help(crit)")
   }
-  data
 }
 
-# assert arguments ------------------------------------------------------
 
+# options -----------------------------------------------------------------
 
-assert_positive_int <- function(arg, strictly = TRUE, greater_than = NULL) {
-  level <- deparse(substitute(arg))
-  if (strictly) {
-    if (arg != trunc(arg) || arg <= 0) {
-      stop(sprintf("Argument '%s' should be a positive integer", level),
-           call. = FALSE)
-    }
+set_pb <- function(condition, iter, width = getOption("width") - 10L) {
+  if (condition) {
+    txtProgressBar(min = 1, max = iter - 1, style = 3,
+                   char = "-", width = width)
+  }
+}
+
+set_pb_opts <- function(condition, pb) {
+  if (condition) {
+    list(progress = function(n) setTxtProgressBar(pb, n))
   }else{
-    if (arg != trunc(arg) | arg < 0L) {
-      stop(sprintf("Argument '%s' should be a non-negative integer",level
-      ), call. = FALSE)
+    list(progress = NULL)
+  }
+}
+
+# tidy --------------------------------------------------------------------
+
+array_to_list <- function(x, var) {
+
+  itnames <- pluck(x, var) %>%
+    dimnames() %>% pluck(3)
+  iter <- length(itnames)
+
+  out <- vector("list", length = iter)
+  for (i in 1:iter) {
+    out[[i]] <- pluck(x, var)[, , i]
+  }
+  out
+}
+
+add_key <- function(x, attr_from) {
+  attr_lag <-  get_lag(attr_from) #else 0
+  if (is.null(attr_lag)) {
+    add_lag <- 0
+  } else{
+    if (is_sb(attr_from) && attr_lag != 0) {
+      add_lag <- attr_lag + 2
+    }else{
+      add_lag <- attr_lag
     }
   }
-  if (!is.null(greater_than)) {
-    if (arg <= greater_than) {
-      stop(sprintf("Argument '%s' should be greater than '%d'",
-                   level, greater_than), call. = FALSE)
+  nkey <- get_minw(attr_from) + add_lag
+  x %>% add_column(key = (nkey + 1):(nrow(.) + nkey))
+}
+
+
+# seq ---------------------------------------------------------------------
+
+extract_cv <- function(y, which = "bsadf_cv", lg = 0) {
+
+  if (is_sb(y)) {
+    stop_glue("cannot extract from `sb_cv()`")
+  }
+
+  out <- pluck(y, which)
+  if (lg != 0) {
+    if (is_wb(y)) {
+      out <- out[-c(1:lg), , ]
+    }else{
+      out <- out[-c(1:lg), ]
     }
   }
-}
 
-assert_between <- function(x, arg1, arg2) {
-  level <- deparse(substitute(x))
-  if (!dplyr::between(x, arg1, arg2)) {
-    stop(sprintf("Argument '%s' should be a be between '%d' and '%d'",
-                 level, arg1, arg2), call. = FALSE)
+  if (is_wb(y)) {
+    out <- out[, 2, ]
+  }else{
+    out <- out[, 2]
   }
-}
 
-assert_class <- function(x, klass) {
-  xstring <- deparse(substitute(x))
-  # klass <- deparse(substitute(klass))
-  if (!inherits(x, klass)) {
-    stop(sprintf("Argument '%s' should be of class '%s'", xstring, klass),
-         call. = FALSE)
-  }
+  out
 }
 
 
-assert_na <- function(x) {
-  if (any(is.na(x))) {
-    stop("RLS estimation cannot handle NA", call. = FALSE)
-  }
-}
 
-'%ni%' <- Negate('%in%')
-
-
-assert_equal_arg <- function(x, y, panel = FALSE) {
-  if (minw(x) != minw(y)) stop("Different minimum window", call. = FALSE)
-
-  if (method(y) == "Sieve Bootstrap") {
-    if (lagr(x) != lagr(y)) stop("Different lag values", call. = FALSE)
-
-  }
-}
-
-# Access attributes easily ------------------------------------------------
-
-
-minw <- function(x) {
-  attr(x, "minw")
-}
-
-lagr <- function(x, ...) {
-  attr(x, "lag")
-}
-
-method <- function(y) {
-  attr(y, "method")
-}
-
-iter <- function(y) {
-  attr(y, "iter")
-}

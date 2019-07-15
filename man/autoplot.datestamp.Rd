@@ -3,7 +3,7 @@
 \name{autoplot.datestamp}
 \alias{autoplot.datestamp}
 \alias{fortify.datestamp}
-\title{Plotting with ggplot2 and tidying with tibble datestamp objects}
+\title{Plotting and tidying datestamp objects}
 \usage{
 \method{autoplot}{datestamp}(object, ...)
 
@@ -12,7 +12,9 @@
 \arguments{
 \item{object}{An object of class \code{\link[=datestamp]{datestamp()}}}
 
-\item{...}{further arguments passed to method, ignored.}
+\item{...}{further arguments passed to method. Specify common characteristics like \code{ggplot2::xlab},
+that are later passed to ggplot chain. For multiple changes, the input in the argument should be in
+a list.}
 
 \item{model}{datestamp object}
 
@@ -25,7 +27,7 @@ Plotting datestamp with \link[=ggplot2]{geom_segment()}
 \examples{
 \donttest{
 
-dta <- cbind(sim_dgp1(n = 100), sim_dgp2(n = 100))
+dta <- cbind(sim_psy1(n = 100), sim_psy2(n = 100))
 
 dta \%>\%
   radf() \%>\%
@@ -37,8 +39,6 @@ dta \%>\%
   radf() \%>\%
   datestamp() \%>\%
   autoplot() +
-  ggplot2::scale_colour_manual(values=rep("black", 4 ))
-
-
+  ggplot2::scale_colour_manual(values = rep("black", 4))
 }
 }

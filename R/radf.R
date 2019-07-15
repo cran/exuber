@@ -24,107 +24,74 @@
 #' Multiple Bubbles: Historical Episodes of Exuberance and Collapse in the
 #' S&P 500. International Economic Review, 56(4), 1043-1078.
 #'
-#' @importFrom stats embed frequency time
-#' @importFrom lubridate date_decimal round_date
-#' @importFrom purrr detect_index
 #' @export
 #'
 #' @examples
 #' \donttest{
 #' # Simulate bubble processes
-#' dta <- cbind(sim_dgp1(n = 100), sim_dgp2(n = 100))
+#' dta <- data.frame(psy1 = sim_psy1(n = 100), psy2 = sim_psy2(n = 100))
 #'
 #' rfd <- radf(dta)
 #'
 #' # For lag = 1 and minimum window = 20
 #' rfd <- radf(dta, minw = 20, lag = 1)
 #' }
-radf <- function(data, minw, lag = 0) {
+radf <- function(data, minw = NULL, lag = 0) {
 
-  # class checks
-  sim_index <- seq(1, NROW(data), 1)
-  if (any(class(data) %in% c("mts", "ts"))) {
-    if (all(time(data) == sim_index)) {
-      dating <- sim_index
-    }else{
-      dating <- time(data) %>%
-        as.numeric() %>%
-        date_decimal()
-      if (frequency(data) %in% c(1, 4, 12)) {
-        dating <- dating %>%
-          round_date("month") %>%
-          as.Date()
-      }else if (frequency(data) == 52) {
-        dating <- dating %>%
-          as.Date()
-      }else{
-        dating <- dating %>%
-          round_date("day") %>%
-          as.Date()
-      }
-    }
-  } else if (is.data.frame(data)) {
-    date_index <- purrr::detect_index(data, lubridate::is.Date)
-    if (as.logical(date_index)) {
-      dating <- data[, date_index, drop = TRUE]
-      data <- data[, -date_index, drop = FALSE]
-    } else {
-      dating <- sim_index
-    }
-  } else if (class(data) %in% c("numeric", "matrix")) {
-    dating <- sim_index
-  } else {
-    stop("Unsupported class", call. = FALSE)
+  x <- parse_data(data)
+
+  if (is.null(minw)) {
+    minw <- psy_minw(data)
   }
-  x <- as.matrix(data)
-  nc <- NCOL(data)
-  nr <- NROW(data)
-  # args
-  if (is.null(colnames(x))) colnames(x) <- paste("Series", seq(1, nc, 1))
-  if (missing(minw)) minw <-  floor((0.01 + 1.8 / sqrt(nr)) * nr)
-  # checks
-  assert_na(data)
+
+  nc <- ncol(x)
+
+  assert_na(x)
   assert_positive_int(minw, greater_than = 2)
   assert_positive_int(lag, strictly = FALSE)
 
-  point <- nr - minw - lag
+  point <- nrow(x) - minw - lag
 
-  adf <- sadf <- gsadf <- drop(matrix(0, 1, nc,
-                                     dimnames = list(NULL, colnames(x))))
-  badf <- bsadf <- matrix(0, point, nc, dimnames = list(NULL, colnames(x)))
+  adf <- sadf <- gsadf <-
+    drop(matrix(0, 1, nc, dimnames = list(NULL, colnames(x))))
+  badf <- bsadf <-
+    matrix(0, point, nc, dimnames = list(NULL, colnames(x)))
 
   for (i in 1:nc) {
-
     yxmat <- unroot(x[, i], lag = lag)
     results <- rls_gsadf(yxmat, min_win = minw, lag = lag)
 
-    badf[, i] <- results[1:point]
-    adf[i]  <- results[point + 1]
-    sadf[i] <- results[point + 2]
-    gsadf[i] <- results[point + 3]
+    badf[, i]  <- results[1:point]
+    adf[i]     <- results[point + 1]
+    sadf[i]    <- results[point + 2]
+    gsadf[i]   <- results[point + 3]
     bsadf[, i] <- results[-c(1:(point + 3))]
   }
 
   bsadf_panel <- apply(bsadf, 1, mean)
   gsadf_panel <- max(bsadf_panel)
 
-  value <- structure(list(adf = adf,
-                          badf = badf,
-                          sadf = sadf,
-                          bsadf = bsadf,
-                          gsadf = gsadf,
-                          bsadf_panel = bsadf_panel,
-                          gsadf_panel = gsadf_panel),
-                     index = dating,
-                     lag = lag,
-                     minw = minw,
-                     lag = lag,
-                     col_names = colnames(x),
-                     class = "radf")
+  structure(
+    list(
+      adf = adf,
+      badf = badf,
+      sadf = sadf,
+      bsadf = bsadf,
+      gsadf = gsadf,
+      bsadf_panel = bsadf_panel,
+      gsadf_panel = gsadf_panel),
+    index = attr(x, "index"),
+    lag = lag,
+    n = nrow(x),
+    minw = minw,
+    lag = lag,
+    col_names = colnames(x),
+    class = "radf"
+  )
 
-  return(value)
 }
 
+#' @importFrom stats embed
 unroot <- function(x, lag = 0) {
   if (lag == 0) {
     x_embed <- embed(x, 2)
@@ -137,4 +104,57 @@ unroot <- function(x, lag = 0) {
     yxmat <- cbind(x_lev, 1, x_lag, dx_embed)
   }
   return(yxmat)
+}
+
+
+# Helpers -----------------------------------------------------------------
+
+#' Helper functions in accordance to PSY(2015)
+#'
+#' \code{psy_minw} proposes a minimum window and \code{psy_ds} proposes a rule of
+#' thumb to exclude periods of exuberance.
+#'
+#' @inheritParams mc_cv
+#' @export
+#' @importFrom rlang is_scalar_atomic
+#' @examples
+#' psy_minw(100)
+#' psy_ds(100)
+psy_minw <- function(n) {
+
+  if (!is_n(n)) {
+    n <- NROW(n)
+  }
+
+  floor( (0.01 + 1.8 / sqrt(n)) * n)
+}
+
+#' @rdname psy_minw
+#' @param rule Rule 1 corresponds to log(T), while rule 2 log(T)/T
+#' @param delta Frequency-dependent parameter
+#'
+#' @details \code{delta } depends on the frequency of the data and the minimal
+#' duration condition. For example, for a 30-year period, we set arbitrarily duration
+#' to exceed periods such as one year. Then, delta should is 0.7 for yearly data
+#' and 5 for monthly data.
+#'
+#' @references Phillips, P. C. B., Shi, S., & Yu, J. (2015). Testing for
+#' Multiple Bubbles: Historical Episodes of Exuberance and Collapse in the
+#' S&P 500. International Economic Review, 56(4), 1043-1078.
+#'
+#' @export
+psy_ds <- function(n, rule = 1, delta = 1) {
+
+  if (!is_n(n)) {
+    n <- NROW(n)
+  }
+  stopifnot(rule == 1 || rule == 2)
+  stopifnot(delta > 0)
+
+  if (rule == 1) {
+    round(delta * log(n))
+  } else if (rule == 2) {
+    round(delta * log(n) / n)
+  }
+
 }

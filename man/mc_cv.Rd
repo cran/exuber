@@ -2,18 +2,28 @@
 % Please edit documentation in R/mc_cv.R
 \name{mc_cv}
 \alias{mc_cv}
+\alias{mc_distr}
 \title{Monte Carlo Critical Values}
 \usage{
-mc_cv(n, nrep = 2000, minw, opt_badf = c("fixed", "asymptotic",
-  "simulated"), opt_bsadf = c("conventional", "conservative"))
+mc_cv(n, minw = NULL, nrep = 2000, seed = NULL,
+  opt_badf = c("fixed", "asymptotic", "simulated"),
+  opt_bsadf = c("conservative", "conventional"))
+
+mc_distr(n, minw = NULL, nrep = 2000, seed = NULL)
 }
 \arguments{
 \item{n}{A positive integer. The sample size.}
 
-\item{nrep}{A positive integer. The number of Monte Carlo simulations.}
-
 \item{minw}{A positive integer. The minimum window size, which defaults to
 \eqn{(0.01 + 1.8/\sqrt(T))*T}{(0.01 + 1.8 / \sqrtT)*T}.}
+
+\item{nrep}{A positive integer. The number of Monte Carlo simulations.}
+
+\item{seed}{An object specifying if and how the random number generator(rng)
+should be initialized. Either NULL or an integer will be used in a call to
+\code{set.seed} before simulation. If set, the value is save as "seed" attribute
+of the returned value. The default, NULL will note change the rng state, and
+return .Random.seed as the "seed" attribute.}
 
 \item{opt_badf}{Options for badf critical value calculation. "fixed" corresponds
 to log(log(n*s))/100 rule, "asymptotic" to asymptotic critical values and
@@ -30,15 +40,18 @@ t-statistics.
 }
 \description{
 \code{mc_cv} computes Monte Carlo critical values for the recursive unit
-root tests.
+root tests. \code{mc_dist} computes the distribution.
 }
 \examples{
-\donttest{
+\dontrun{
 # Default minimum window
 mc <- mc_cv(n = 100)
 
 # Change the minimum window and the number of simulations
-mc <- mc_cv(n = 100, nrep = 2500,  minw = 20)
+mc <- mc_cv(n = 100, nrep = 2500, minw = 20)
+
+mdist <- mc_distr(n = 100)
+autoplot(mdist)
 }
 }
 \seealso{

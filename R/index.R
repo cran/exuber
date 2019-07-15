@@ -1,4 +1,5 @@
-#' Retrieve/Replace the Index
+
+#' Retrieve/Replace the index
 #'
 #' @description  Retrieve or replace the index of an \code{radf} object.
 #'
@@ -19,33 +20,55 @@ NULL
 #' @export
 index.radf <- function(x, trunc = FALSE, ...) {
   value <- attr(x, "index")
-  if (trunc) value <- value[-c(1:(minw(x) + lagr(x)))]
+  if (trunc) value <- value[-c(1:(get_minw(x) + get_lag(x)))]
   value
 }
 
-#' @importFrom purrr detect_index
-#' @importFrom lubridate is.Date
-#' @rdname index.radf
-#' @export
-index.data.frame <- function(x, ...) {
-  date_index <- purrr::detect_index(x, lubridate::is.Date)
-  if (as.logical(date_index)) x[, date_index, drop = TRUE] else seq(1, NROW(x))
-}
-
-#' @rdname index.radf
-#' @export
-index.datestamp <- function(x, ...) {
-  attr(x, "index")
-}
 
 #' @rdname  index.radf
 #' @inheritParams index.radf
 #' @export
 `index<-.radf` <- function(x, value) {
-  if (length(index(x)) != length(value)) {
-    stop("length of index vectors does not match", call. = FALSE)
-  }
+  if (length(index(x)) != length(value))
+    stop_glue("length of index vectors does not match")
 
   attr(x, "index") <- value
   return(x)
+}
+
+#' @export
+index.default <- function(x, ...) {
+  if (is.null(attr(x, "index"))) {
+    seq_len(NROW(x))
+  }else{
+    attr(x, "index")
+  }
+}
+
+# Defensive ---------------------------------------------------------------
+
+
+#' @export
+index.cv <- function(x, trunc = FALSE, ...) {
+  if (is_mc(x))
+    stop_glue("method `index` is not suppoted for {get_method(x)}")
+  value <- attr(x, "index")
+  if (is_sb(x)) {
+    if (get_lag(x) != 0) {
+      if (trunc) value <- value[-c(1:(get_minw(x) + get_lag(x) + 2))]
+    }else{
+      if (trunc) value <- value[-c(1:(get_minw(x)))]
+    }
+  }else{
+    if (trunc) value <- value[-c(1:get_minw(x))]
+  }
+  value
+}
+
+#' @importFrom purrr detect_index
+#' @importFrom lubridate is.Date
+#' @export
+index.data.frame <- function(x, ...) {
+  date_index <- purrr::detect_index(x, lubridate::is.Date)
+  if (as.logical(date_index)) x[, date_index, drop = TRUE] else seq_len(NROW(x))
 }

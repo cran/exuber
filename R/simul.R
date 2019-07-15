@@ -9,6 +9,7 @@
 #' @param c A positive scalar determining the autoregressive coefficient in the explosive regime.
 #' @param alpha A positive scalar in (0, 1) determining the value of the expansion rate in the autoregressive coefficient.
 #' @param sigma A positive scalar indicating the standard deviation of the innovations.
+#' @inheritParams mc_cv
 #'
 #' @details
 #' The data generating process is described by the following equation:
@@ -39,19 +40,19 @@
 #' Historical Episodes of Exuberance and Collapse in the S&P 500. International Economic Review, 5
 #' 6(4), 1043-1078.
 #'
-#' @seealso \code{\link{sim_dgp2}}, \code{\link{sim_blan}}, \code{\link{sim_evans}}
+#' @seealso \code{\link{sim_psy2}}, \code{\link{sim_blan}}, \code{\link{sim_evans}}
 #'
 #' @examples
 #' # 100 periods with bubble origination date 40 and termination date 55
-#' sim_dgp1(n = 100)
+#' sim_psy1(n = 100)
 #'
 #' # 200 periods with bubble origination date 80 and termination date 110
-#' sim_dgp1(n = 200)
+#' sim_psy1(n = 200)
 #'
 #' # 200 periods with bubble origination date 100 and termination date 150
-#' sim_dgp1(n = 200, te = 100, tf = 150)
-sim_dgp1 <- function(n, te = 0.4 * n, tf = 0.15 * n + te, c = 1,
-                     alpha = 0.6, sigma = 6.79) {
+#' sim_psy1(n = 200, te = 100, tf = 150)
+sim_psy1 <- function(n, te = 0.4 * n, tf = 0.15 * n + te, c = 1,
+                     alpha = 0.6, sigma = 6.79, seed = NULL) {
   assert_positive_int(n)
   assert_between(te, 0, n)
   assert_between(tf, te, n)
@@ -59,7 +60,9 @@ sim_dgp1 <- function(n, te = 0.4 * n, tf = 0.15 * n + te, c = 1,
   assert_between(alpha, 0, 1)
   stopifnot(sigma >= 0)
 
-  delta <- 1 + c * n^(-alpha)
+  rng_state <- set_rng(seed = seed)
+
+  delta <- 1 + c * n ^ (-alpha)
   y <- 100
 
   for (i in 2:n) {
@@ -73,15 +76,19 @@ sim_dgp1 <- function(n, te = 0.4 * n, tf = 0.15 * n + te, c = 1,
       y[i] <- y[i - 1] + rnorm(1, sd = sigma)
     }
   }
-  return(y)
+
+  y %>%
+    add_attr(seed = rng_state) %>%
+    add_class("sim")
 }
+
 
 #' Simulation of a two-bubble process
 #'
-#' The following data generating process is similar to  \code{\link{sim_dgp1}}, with the difference that
+#' The following data generating process is similar to  \code{\link{sim_psy1}}, with the difference that
 #' there are two episodes of mildly explosive dynamics.
 #'
-#' @inheritParams sim_dgp1
+#' @inheritParams sim_psy1
 #' @param te1 A scalar in (0, n) specifying the observation in which the first bubble originates.
 #' @param tf1 A scalar in  (te1, n) specifying the observation in which the first bubble collapses.
 #' @param te2 A scalar in (tf1, n) specifying the observation in which the second bubble originates.
@@ -130,17 +137,17 @@ sim_dgp1 <- function(n, te = 0.4 * n, tf = 0.15 * n + te, c = 1,
 #' Historical Episodes of Exuberance and Collapse in the S&P 500. International Economic Review, 5
 #' 6(4), 1043-1078.
 #'
-#' @seealso \code{\link{sim_dgp1}}, \code{\link{sim_blan}}, \code{\link{sim_evans}}
+#' @seealso \code{\link{sim_psy1}}, \code{\link{sim_blan}}, \code{\link{sim_evans}}
 #'
 #' @examples
 #' # 100 periods with bubble origination dates 20/60 and termination dates 40/70 respectively
-#' sim_dgp2(n = 100)
+#' sim_psy2(n = 100)
 #'
 #' # 200 periods with bubble origination dates 40/120 and termination dates 80/140 respectively
-#' sim_dgp2(n = 200)
-sim_dgp2 <- function(n, te1 = 0.2 * n, tf1 = 0.2 * n + te1,
+#' sim_psy2(n = 200)
+sim_psy2 <- function(n, te1 = 0.2 * n, tf1 = 0.2 * n + te1,
                      te2 = 0.6 * n, tf2 = 0.1 * n + te2,
-                     c = 1, alpha = 0.6, sigma = 6.79) {
+                     c = 1, alpha = 0.6, sigma = 6.79, seed = NULL) {
   assert_positive_int(n)
   assert_between(te1, 0, n)
   assert_between(tf1, te1, n)
@@ -149,7 +156,9 @@ sim_dgp2 <- function(n, te1 = 0.2 * n, tf1 = 0.2 * n + te1,
   assert_between(alpha, 0, 1)
   stopifnot(sigma >= 0)
 
-  delta <- 1 + c * n^(-alpha)
+  rng_state <- set_rng(seed = seed)
+
+  delta <- 1 + c * n ^ (-alpha)
   y <- 100
 
   for (i in 2:n) {
@@ -170,16 +179,19 @@ sim_dgp2 <- function(n, te1 = 0.2 * n, tf1 = 0.2 * n + te1,
     }
   }
 
-  return(y)
+  y %>%
+    add_attr(seed = rng_state) %>%
+    add_class("sim")
 }
 
 #' Simulation of a Blanchard (1979) bubble process
 #'
 #' Simulation of a Blanchard (1979) rational bubble process.
 #'
-#' @inheritParams sim_dgp1
+#' @inheritParams sim_psy1
 #' @param pi A positive value in (0, 1) which governs the probability of the bubble continuing to grow.
 #' @param r A positive scalar that determines the growth rate of the bubble process.
+#' @param b0 The initial value of the bubble
 #'
 #' @export
 #' @return A numeric vector of length \code{n}.
@@ -201,17 +213,21 @@ sim_dgp2 <- function(n, te1 = 0.2 * n, tf1 = 0.2 * n + te1,
 #' @references Blanchard, O. J. (1979). Speculative bubbles, crashes and rational expectations.
 #' Economics letters, 3(4), 387-389.
 #'
-#' @seealso \code{\link{sim_dgp1}}, \code{\link{sim_dgp2}}, \code{\link{sim_evans}}
+#' @seealso \code{\link{sim_psy1}}, \code{\link{sim_psy2}}, \code{\link{sim_evans}}
 #'
 #' @examples
 #' sim_blan(n = 100)
-sim_blan <- function(n, pi = 0.7, sigma = 0.03, r = 0.05) {
+sim_blan <- function(n, pi = 0.7, sigma = 0.03, r = 0.05, b0 = 0.1,
+                     seed = NULL) {
+
   assert_positive_int(n)
   assert_between(pi, 0, 1)
   stopifnot(sigma >= 0)
   stopifnot(r >= 0)
 
-  b <- 1
+  rng_state <- set_rng(seed = seed)
+
+  b <- b0
   theta <- rbinom(n, 1, pi)
   i <- 1
   while (i < n) {
@@ -226,7 +242,10 @@ sim_blan <- function(n, pi = 0.7, sigma = 0.03, r = 0.05) {
       i <- i - 1
     }
   }
-  return(b)
+
+  b %>%
+    add_attr(seed = rng_state) %>%
+    add_class("sim")
 }
 
 #' Simulation of an Evans (1991) bubble process
@@ -264,26 +283,27 @@ sim_blan <- function(n, pi = 0.7, sigma = 0.03, r = 0.05) {
 #'
 #' @export
 #'
-#' @seealso \code{\link{sim_dgp1}}, \code{\link{sim_dgp2}}, \code{\link{sim_blan}}
+#' @seealso \code{\link{sim_psy1}}, \code{\link{sim_psy2}}, \code{\link{sim_blan}}
 #'
 #' @references Evans, G. W. (1991). Pitfalls in testing for explosive
 #' bubbles in asset prices. The American Economic Review, 81(4), 922-930.
 #'
-sim_evans <- function(n, alpha = 1, delta = 0.5,
-                      tau = 0.05, pi = 0.7, r = 0.05, b1 = delta) {
+sim_evans <- function(n, alpha = 1, delta = 0.5, tau = 0.05, pi = 0.7,
+                      r = 0.05, b1 = delta, seed = NULL) {
 
   # checks here
   assert_positive_int(n)
   stopifnot(alpha > 0)
   if (delta < 0 | delta > (1 + r) * alpha) {
-    stop("alpha and delta should satisfy: 0 < delta < (1+r)*alpha",
-         call. = FALSE)
+    stop_glue("alpha and delta should satisfy: 0 < delta < (1+r)*alpha")
   }
   assert_between(pi, 0, 1)
   stopifnot(r >= 0)
 
+  rng_state <- set_rng(seed = seed)
+
   y <- rnorm(n, 0, tau)
-  u <- exp(y - tau^2 / 2)
+  u <- exp(y - tau ^ 2 / 2)
   theta <- rbinom(n, 1, pi)
   b <- b1
 
@@ -291,18 +311,21 @@ sim_evans <- function(n, alpha = 1, delta = 0.5,
     if (b[i] <= alpha) {
       b[i + 1] <- (1 + r) * b[i] * u[i + 1]
     } else {
-      b[i + 1] <- (delta + pi^(-1) * (1 + r) * theta[i + 1] * (b[i] -
-        (1 + r)^(-1) * delta)) * u[i + 1]
+      b[i + 1] <- (delta + pi ^ (-1) * (1 + r) * theta[i + 1] * (b[i] -
+        (1 + r) ^ (-1) * delta)) * u[i + 1]
     }
   }
-  return(b)
+
+  b %>%
+    add_attr(seed = rng_state) %>%
+    add_class("sim")
 }
 
 #' Simulation of dividends
 #'
 #' Simulate (log) dividends from a random walk with drift.
 #'
-#' @inheritParams sim_dgp1
+#' @inheritParams sim_psy1
 #' @param mu A scalar indicating the drift.
 #' @param r A positive value indicating the discount factor.
 #' @param log A logical. If true dividends follow a lognormal distribution.
@@ -344,9 +367,9 @@ sim_evans <- function(n, alpha = 1, delta = 0.5,
 #' # 20 is the scaling factor
 #' pf <- sim_div(100, r = 0.05, output = "pf")
 #' pb <- sim_evans(100, r = 0.05)
-#' p <- pf + 20*pb
+#' p <- pf + 20 * pb
 sim_div <- function(n, mu, sigma, r = 0.05,
-                    log = FALSE, output = c("pf", "d")) {
+                    log = FALSE, output = c("pf", "d"), seed = NULL) {
   initval <- 1.3
   # Values obtained from West(1988, p53)
   if (missing(mu)) if (log) mu <- 0.013 else mu <- 0.0373
@@ -358,21 +381,43 @@ sim_div <- function(n, mu, sigma, r = 0.05,
   stopifnot(is.logical(log))
   return <- match.arg(output)
 
+  rng_state <- set_rng(seed = seed)
+
   d <- stats::filter(mu + c(initval, rnorm(n - 1, 0, sigma)),
     c(1),
     init = 1.3, method = "recursive"
   )
 
   if (log) {
-    g <- exp(mu + sigma^2 / 2) - 1
+    g <- exp(mu + sigma ^ 2 / 2) - 1
     pf <- (1 + g) * d / (r - g)
   } else {
-    pf <- mu * (1 + r) * r^(-2) + d / r
+    pf <- mu * (1 + r) * r ^ (-2) + d / r
   }
 
-  if (return == "pf") {
-    return(pf)
-  } else {
-    return(d)
-  }
+  if (return == "pf")  out <- pf else out <- d
+
+  out %>%
+    add_attr(seed = rng_state) %>%
+    add_class("sim")
+
+}
+
+# IDEA maybe add ps1 for smooth collapse, although sim_psy1 is nested in that case
+
+#' @export
+print.sim <- function(x, ...) {
+  attributes(x) <- NULL
+  print(x)
+}
+
+#' @export
+#' @keywords internal
+autoplot.sim <- function(object, ...) {
+  object %>%
+    enframe() %>%
+    ggplot(aes(name, value)) +
+    geom_line() +
+    theme_bw() +
+    labs(x = "", y = "")
 }

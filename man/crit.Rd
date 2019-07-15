@@ -6,11 +6,11 @@
 \title{Simulated Monte Carlo critical values}
 \format{A list with lower level lists that contain
 \describe{
-  \item{adf_cv:}{Augmented Dickey-Fuller}
-  \item{badf_cv:}{Backward Augmented Dickey-Fuller}
-  \item{sadf_cv:}{Supremum Augmented Dickey-Fuller}
-  \item{bsadf_cv:}{Backward Supremum Augmented Dickey-Fuller}
-  \item{gsadf_cv:}{Generalized Supremum Augmented Dickey Fuller}
+\item{adf_cv:}{Augmented Dickey-Fuller}
+\item{badf_cv:}{Backward Augmented Dickey-Fuller}
+\item{sadf_cv:}{Supremum Augmented Dickey-Fuller}
+\item{bsadf_cv:}{Backward Supremum Augmented Dickey-Fuller}
+\item{gsadf_cv:}{Generalized Supremum Augmented Dickey Fuller}
 
 }}
 \source{
@@ -20,9 +20,14 @@ simulated from exuber package function \code{\link[=mc_cv]{mc_cv()}}
 crit
 }
 \description{
-A dataset containing simulated critical values for up to 700 observations
+A dataset containing simulated critical values for up to 600 observations
 based on default minimum window. The critical values have been simulated and
-stored as data to save computation time for the user. Critical values can be also
-obtained with the \code{\link[=mc_cv]{mc_cv()}} function.
+stored as data to save computation time for the user. The stored critical values
+can be obtained with the \code{\link[=mc_cv]{mc_cv()}} function, using the \code{seed = 123}.
+}
+\examples{
+\dontrun{
+all.equal(crit[[50]], mc_cv(50, seed = 123))
+}
 }
 \keyword{datasets}

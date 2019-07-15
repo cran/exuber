@@ -1,3 +1,51 @@
+# exuber 0.3.0
+
+## Breaking changes
+
+* Changed `opt_bsadf = conservative` for the simulated critical values (`crit`),
+also reduced the size of the `crit` from 700 to 600 due to package size restrictions.
+* `sim_dgp1()` and `sim_dgp2()` have been renamed to `sim_psy1()` and `sim_psy2()` 
+to better describe the origination of the dgp. 
+* `sim_dgp1()` and `sim_dgp2()` have been soft-deprecated.
+* `autoplot_radf()` arranges automatically multiple graphs, to return to previous
+behavior we included the optional argument `arrange` which is set to TRUE by default.
+
+Three new functions have been added to simulate empirical distributions for:
+
+* `mc_dist()`: Monte Carlo 
+* `wb_dist()`: Wild Bootstrap 
+* `sb_dist()`: Sieve Bootstrap 
+
+and a function that can calculate the p-values `calc_pvalue()` given the above 
+distributions as argument.
+
+Also methods `tidy()` and `autoplot()` have been added to turn the object into
+a tidy tibble and draw a particular plot with ggplot2, respectively.
+
+## New features
+
+* `tidy()` methods for objects of class `radf`, `cv`.
+* `augment()` methods for objects of class `radf` and `cv`.
+* `augment_join()` to combine object `radf` and `cv` into a single data.frame.
+* `glance()` method for objects of class `radf`.
+
+## Improvements
+
+* New printing output for the functions `summary()`, `diagnostics()` and 
+`datestamp()`.
+* New improved progressbar with more succinct printing for `wb_cv()`
+* `seed` argument to functions that are using rng. Also the option to declare
+a global seed for reproducibility with the `option(exuber.global_seed = ###)`
+
+## Bug Fixes
+
+* `sb_cv()` and `wb_cv()`now can parse data that contain a date-column. Similarly,
+to what `radf()` is doing.
+
+
+# exuber 0.2.1.9000
+
+* Website development
 
 # exuber 0.2.1
 

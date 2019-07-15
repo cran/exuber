@@ -8,7 +8,7 @@ dating_d <- seq(as.Date("1997/01/01"), by = "day", length.out = 100)
 
 test_that("data.frame", {
   # No date index
-  expect_equal(index(dta), seq(1, NROW(dta)))
+  expect_equal(index(dta), seq(from = 1, to = NROW(dta)))
 
   # parse dates from data.frame
   df_y <- data.frame(dating_y, dta)
@@ -26,7 +26,6 @@ test_that("data.frame", {
   expect_equal(index(df_y), dating_y)
   expect_equal(index(df_m), dating_m)
   expect_equal(index(df_w), dating_w)
-
 })
 
 test_that("ts", {
@@ -50,12 +49,13 @@ test_that("ts", {
 test_that("matrix", {
   # parse index from matrix
   mat1 <- as.matrix(dta, ncol = 5)
-  expect_equal(index(radf(mat1)), seq(1, NROW(mat1)))
-  expect_error(index(radf(mat1)) <- seq(1, NROW(mat1) - 1),
-               "length of index vectors does not match")
+  expect_equal(index(radf(mat1)), seq(from = 1, to = NROW(mat1)))
+  expect_error(
+    index(radf(mat1)) <- seq(from = 1, to = NROW(mat1) - 1),
+    "length of index vectors does not match"
+  )
 })
 
 test_that("datestamp", {
   expect_equal(radf_dta %>% datestamp() %>% index(), index(radf_dta, trunc = T))
 })
-

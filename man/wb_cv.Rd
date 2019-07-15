@@ -2,9 +2,14 @@
 % Please edit documentation in R/wb_cv.R
 \name{wb_cv}
 \alias{wb_cv}
+\alias{wb_distr}
 \title{Wild Bootstrap Critical values}
 \usage{
-wb_cv(data, minw, nboot = 1000, dist_rad = FALSE)
+wb_cv(data, minw = NULL, nboot = 1000, dist_rad = FALSE,
+  seed = NULL)
+
+wb_distr(data, minw = NULL, nboot = 1000, dist_rad = FALSE,
+  seed = NULL)
 }
 \arguments{
 \item{data}{A univariate or multivariate numeric ts object, data.frame or matrix.
@@ -17,6 +22,12 @@ The estimation process cannot handle NA values.}
 
 \item{dist_rad}{Logical. If \code{TRUE} then  the Rademacher distribution
 will be used.}
+
+\item{seed}{An object specifying if and how the random number generator(rng)
+should be initialized. Either NULL or an integer will be used in a call to
+\code{set.seed} before simulation. If set, the value is save as "seed" attribute
+of the returned value. The default, NULL will note change the rng state, and
+return .Random.seed as the "seed" attribute.}
 }
 \value{
 A list that contains the critical values for ADF, BADF, BSADF and GSADF
@@ -25,7 +36,8 @@ t-statistics.
 \description{
 \code{wb_cv} performs the Harvey et al. (2016) wild bootstrap re-sampling
 scheme, which is asymptotically robust to non-stationary volatility, to
-generate critical values for the recursive unit root tests.
+generate critical values for the recursive unit root tests. \code{wb_dist}
+computes the distribution.
 }
 \details{
 This approach involves applying a wild bootstrap re-sampling scheme
@@ -33,16 +45,18 @@ to construct the bootstrap analogue of the Phillips et al. (2015) test which
 is asymptotically robust to non-stationary volatility.
 }
 \examples{
-\donttest{
+\dontrun{
 # Simulate bubble processes
-dta <- data.frame("dg1" = sim_dgp1(n = 100), "dgp2" = sim_dgp2(n = 100))
+dta <- data.frame(psy1 = sim_psy1(n = 100), psy2 = sim_psy2(n = 100))
 
 # Default minimum window
 wb <- wb_cv(dta)
 
 # Change the minimum window and the number of bootstraps
-wb <- wb_cv(dta, nboot = 1500,  minw = 20)
+wb <- wb_cv(dta, nboot = 1500, minw = 20)
 
+# Simulate distribution
+wb_distr(dta)
 }
 }
 \references{

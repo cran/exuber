@@ -2,9 +2,12 @@
 % Please edit documentation in R/sb_cv.R
 \name{sb_cv}
 \alias{sb_cv}
+\alias{sb_distr}
 \title{Panel Sieve Bootstrap Critical Values}
 \usage{
-sb_cv(data, minw, lag = 0, nboot = 1000)
+sb_cv(data, minw = NULL, lag = 0, nboot = 1000, seed = NULL)
+
+sb_distr(data, minw = NULL, lag = 0, nboot = 1000, seed = NULL)
 }
 \arguments{
 \item{data}{A univariate or multivariate numeric ts object, data.frame or matrix.
@@ -16,6 +19,12 @@ The estimation process cannot handle NA values.}
 \item{lag}{A non-negative integer. The lag of the Augmented Dickey-Fuller regression.}
 
 \item{nboot}{A positive integer indicating the number of bootstraps. Default is 1000 repetitions.}
+
+\item{seed}{An object specifying if and how the random number generator(rng)
+should be initialized. Either NULL or an integer will be used in a call to
+\code{set.seed} before simulation. If set, the value is save as "seed" attribute
+of the returned value. The default, NULL will note change the rng state, and
+return .Random.seed as the "seed" attribute.}
 }
 \value{
 A list that contains the panel critical values for BSADF and GSADF
@@ -23,25 +32,35 @@ t-statistics.
 }
 \description{
 \code{sb_cv} computes p-values for the panel recursive unit root test using
-the sieve bootstrap procedure outlined in Pavlidis et al. (2016)
+the sieve bootstrap procedure outlined in Pavlidis et al. (2016). \code{sb_dist}
+computes the distribution.
 }
 \examples{
-\donttest{
+\dontrun{
 
 # Simulate bubble processes
-set.seed(124)
-pdta <- cbind(sim_dgp1(100), sim_dgp1(100), sim_div(100), sim_div(100), sim_div(100))
+set.seed(4441)
+dta <- data.frame(
+  "psy1" = sim_psy1(100),
+  "psy2" = sim_psy2(100),
+  "evans" = sim_evans(100),
+  "div" = sim_div(100),
+  "blan" = sim_blan(100)
+)
 
 # Panel critical vales should have the same lag length with the estimation
-sb <- sb_cv(pdta, lag = 1)
+sb <- sb_cv(dta, lag = 1)
 
-pdta \%>\%
+dta \%>\%
   radf(lag = 1) \%>\%
   summary(cv = sb)
 
-pdta \%>\%
+dta \%>\%
   radf(lag = 1) \%>\%
   autoplot(cv = sb)
+
+# Simulate distribution
+sb_dist(dta, lag = 1)
 }
 }
 \references{
