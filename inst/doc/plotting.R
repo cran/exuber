@@ -1,4 +1,4 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -6,19 +6,19 @@ knitr::opts_chunk$set(
   fig.width = 10
 )
 
-## ----load----------------------------------------------------------------
+## ----load, echo=FALSE, message=FALSE------------------------------------------
 library(exuber)
 options(exuber.show_progress = FALSE)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
 
-## ----options, echo=FALSE-------------------------------------------------
+## ----options, echo=FALSE------------------------------------------------------
 options(exuber.parallel = FALSE)
 
-## ----tstats-cv-----------------------------------------------------------
+## ----tstats-cv----------------------------------------------------------------
 set.seed(123)
-dta <- tibble(
+sims <- tibble(
   sim_psy1 = sim_psy1(100),
   sim_psy2 = sim_psy2(100),
   sim_evans = sim_blan(100),
@@ -26,76 +26,75 @@ dta <- tibble(
 ) 
 
 # Esimation
-tstats <- radf(dta, lag = 1)
+estimation <- radf(sims, lag = 1)
   
-# Critical Values ~ Conservative
-cv <- mc_cv(nrow(dta), opt_bsadf = "conservative")
+# Critical Values
+crit_values <- radf_mc_cv(nrow(sims))
 
-## ----autoplot------------------------------------------------------------
-autoplot(tstats, cv)
+## ----autoplot-basic-----------------------------------------------------------
+autoplot(estimation, crit_values)
 
-## ----autoplot-modify-----------------------------------------------------
-plots <- autoplot(tstats, cv, arrange = FALSE)
+## ----autoplot-color-theme-----------------------------------------------------
+autoplot(estimation, crit_values) +
+  scale_color_manual(values = c("grey","black")) + 
+  theme_classic()
 
-mod_plot <- plots[[1]] + 
-  labs(x = "index", y = "Statistic", title = "Simulation of a single-bubble process")
-mod_plot
+## ----autoplot-shade-----------------------------------------------------------
+autoplot(estimation, crit_values, shade_opt = shade(fill = "pink", opacity = 0.3))
 
-## ----reconstruct---------------------------------------------------------
-plots[[1]] <- mod_plot
-plots[1:2] %>% 
-  ggarrange()
+## ----join-sets----------------------------------------------------------------
+joined <- augment_join(estimation, crit_values)
+joined
 
-## ----join-sets-----------------------------------------------------------
-joined <- augment_join(tstats, cv)
-joined 
+## ----facet-joined-------------------------------------------------------------
+joined %>% 
+  ggplot(aes(x = index)) +
+  geom_line(aes(y = tstat)) +
+  geom_line(aes(y = crit)) +
+  facet_grid(sig + name ~  id  , scales = "free_y")
 
-## ----facet-joined, warning=FALSE-----------------------------------------
-library(ggplot2)
+## ----facet-joined-theme-exuber, warning=FALSE---------------------------------
 joined %>%
-  ggplot(aes(x = index)) +
-  geom_line(aes(y = tstat)) +
-  geom_line(aes(y = crit, col = "red")) +
-  facet_grid(id ~ name + sig , scales = "free_y") +
-  theme_bw()
+  pivot_longer(cols = c("tstat", "crit"), names_to = "nms") %>% 
+  ggplot(aes(x = index, y = value, col = nms)) +
+  geom_line() +
+  facet_grid(sig + name ~  id  , scales = "free_y") +
+  scale_exuber_manual() +
+  theme_exuber()
 
-## ----autoplot-fortify----------------------------------------------------
-fortify(tstats, cv) %>%
-  gather(id, tstat, -cv, -index, factor_key = TRUE) %>%
-  ggplot(aes(x = index)) +
-  geom_line(aes(y = tstat)) +
-  geom_line(aes(y = cv, col = "red", linetype = "dotted")) +
-  facet_wrap(~ id , scales = "free_y") +
-  theme_bw() + theme(strip.background = element_blank(),
-                     legend.position = "none") +
-  labs(x = "", y = "")
+## ----distributions------------------------------------------------------------
+distr <- radf_mc_distr(n = 300)
+autoplot(distr)
 
-## ----fortify-autoplot-datestamp, eval=FALSE, include=FALSE---------------
-#  bind_cols(
-#    fortify(tstats, cv) %>%
-#      gather(id, tstat, -index),
-#    fortify(tstats, cv = wb_cv(dta)) %>%
-#      gather(id, crit, -psy1, -psy2, -index)
-#  ) %>%
-#    select(index, id, crit, tstat) %>%
-#    ggplot(aes(x = index)) +
-#    geom_line(aes(y = tstat)) +
-#    geom_line(aes(y = crit, color = "red"), linetype = "dashed") +
-#    facet_wrap(~ id, ncol = 1) +
-#    theme_bw()
-
-## ----distributions-------------------------------------------------------
-dist <- mc_distr(n = 300)
-autoplot(dist)
-
-## ----ecdf----------------------------------------------------------------
+## ----ecdf---------------------------------------------------------------------
 library(tidyr)
-dist %>%
+distr %>%
   tidy() %>%
   rename_all(~ stringr::str_to_upper(.)) %>%
   gather(Statistic, value, factor_key = TRUE) %>%
   ggplot(aes(value, color = Statistic)) +
   stat_ecdf() +
-  ggtitle("Empirical Cumulative Distribution Function") +
+  ggtitle("Empirical Cumulative Distribution") +
   geom_hline(yintercept = 0.95, linetype = "dashed") + theme_bw()
+
+## ----lapply-arrange-----------------------------------------------------------
+library(gridExtra)
+
+# To choose only positive series (i.e. statistically significant for 5%)
+positive_series <- diagnostics(estimation, crit_values)$positive 
+
+# Through a loop on positive series 
+plot_list1 <- list()
+for (as in positive_series) {
+  plot_list1[[as]] <- autoplot(estimation, crit_values, select_series = as)
+}
+
+# Alternatively  with lapply
+plot_list2 <- lapply(positive_series, function(x) autoplot(estimation, crit_values, select_series = x))
+names(plot_list2) <- positive_series
+
+do.call(gridExtra::grid.arrange, plot_list1)
+
+## ----example-old--------------------------------------------------------------
+plot_list1[[1]] <- plot_list1[[1]] + theme_classic()
 

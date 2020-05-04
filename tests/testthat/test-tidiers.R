@@ -8,11 +8,10 @@ test_that("tidy output", {
   expect_equal(names(tidy(mc, format = "long")), c("name", "sig", "crit"))
   expect_equal(names(tidy(wb)), c("id", "sig", nms))
   expect_equal(names(tidy(wb, format = "long")), c("id", "name", "sig", "crit"))
-  expect_equal(names(tidy(sb)), c("sig", "gsadf_panel"))
+  expect_equal(names(tidy(sb)), c("id","sig", "gsadf_panel"))
   expect_equal(names(tidy(sb, format = "long")), c("id", "name", "sig", "crit"))
 
 })
-
 
 test_that("augment output",{
   expect_equal(names(augment(radf_dta)),
@@ -25,26 +24,25 @@ test_that("augment output",{
   id_nms <- c("psy1", "psy2", "evans", "div", "blan")
   expect_equal(names(augment(wb)), c("key", "index", "sig", "name", id_nms))
   expect_equal(names(augment(wb, format = "long")),
-               c("key", "index", "sig", "name", "id", "crit"))
+               c("key", "index", "id", "name", "sig", "crit"))
   expect_equal(names(augment(sb)), c("key", "index", "sig", "bsadf_panel"))
   expect_equal(names(augment(sb, format = "long")),
-               c("key", "index", "sig", "name", "crit"))
+               c("key", "index", "id", "name","sig", "crit"))
 
 })
 
 test_that("augment_join", {
   vec_na <- function(x) is.na(x) %>% all()
-  expect_false(augment_join(radf_dta) %>% vec_na())
-  expect_false(augment_join(radf_dta_lag1) %>% vec_na())
+  expect_false(augment_join(radf_dta, mc) %>% vec_na())
+  expect_false(augment_join(radf_dta_lag1, mc) %>% vec_na())
   expect_false(augment_join(radf_dta_lag1, mc) %>% vec_na())
   expect_false(augment_join(radf_dta_lag1, wb) %>% vec_na())
   expect_false(augment_join(radf_dta_lag1, sb1) %>% vec_na())
   expect_false(augment_join(radf_dta_lag1, sb1) %>% vec_na())
   expect_error(augment_join(radf_dta_lag1, sb))
-  expect_error(augment_join(radf_dta_lag1, sb2))
 })
 
 test_that("glance output", {
   # Glance
-  expect_equal(names(glance(radf_dta)), "panel")
+  expect_equal(names(tidy(radf_dta, panel = TRUE)), "gsadf_panel")
 })

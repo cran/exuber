@@ -4,23 +4,22 @@ set_attrs <- function(x, ...) {
   x
 }
 
-inherit_attrs <- function(x, y, exception = "class") {
-
-  attr_x <- attributes(x) %>% names() %||% NA_character_
-  attr_y <- attributes(y) %>% names() %||% NA_character_
-
-  remove_those <- which(attr_x %in% attr_y)
-  attributes(y)[remove_those] <- NULL
-
-  # TODO: fix this function
-  attributes(x) <- c(attributes(x), attributes(y))
-  x
-}
-
 #'@importFrom rlang dots_list
 add_attr <- function(x,  ...) {
   attrs <- dots_list(...)
   attributes(x) <- c(attributes(x), attrs)
+  x
+}
+
+inherit_attrs <- function(x, y) {
+
+  attr_x <- attributes(x) %>% names() %||% NA_character_
+  attr_y <- attributes(y) %>% names() %||% NA_character_
+
+  remove_x <- which(attr_x %in% attr_y)
+  attributes(y)[remove_x] <- NULL # remove duplicates
+
+  attributes(x) <- c(attributes(x), attributes(y))
   x
 }
 
@@ -60,3 +59,5 @@ get_min_dur <- function(y) {
 get_panel <- function(y) {
   attr(y, "panel")
 }
+
+

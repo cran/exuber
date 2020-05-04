@@ -1,0 +1,36 @@
+## ---- include = FALSE---------------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+## ----methods, echo = FALSE, message =FALSE, warning=FALSE---------------------
+library(exuber)
+library(rlang)
+library(purrr)
+library(dplyr)
+tick <- clisymbols::symbol$tick
+method_df <- function(x) {
+  methods(x) %>% 
+  # grep(x, ., value = TRUE) %>% 
+  strsplit("[.]") %>% 
+  purrr::reduce(rbind) %>%
+  when(is.null(nrow(.)) ~ t(.),!is.null(nrow(.)) ~ .) %>% 
+  as_tibble() %>% 
+  magrittr::set_colnames(c(x, "class")) %>% 
+  select(class, !!enquo(x)) %>% 
+  mutate(!!enquo(x) := tick)
+}
+
+method_tidy <- method_df("tidy") 
+method_augment <- method_df("augment")
+
+list(method_tidy, method_augment) %>% 
+  purrr::reduce(full_join) %>% 
+  mutate(class = as.factor(class) %>% forcats::fct_relevel("radf")) %>%
+  arrange(class) %>% 
+  filter(!class %in% c("tidy", "augment", "glance", "augment_join")) %>% 
+  dplyr::mutate_all(tidyr::replace_na, "") %>% 
+  knitr::kable()
+
+

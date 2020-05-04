@@ -6,7 +6,7 @@
 \alias{exuber-package}
 \title{exuber: Econometric Analysis of Explosive Time Series}
 \description{
-\if{html}{\figure{logo.png}{options: align='right'}}
+\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
 Testing for and dating periods of explosive
     dynamics (exuberance) in time series using the univariate and panel
@@ -21,7 +21,7 @@ Testing for and dating periods of explosive
 
 \code{exuber.show_progress}
 \itemize{
-\item Should lengthy operations such as \code{mc_cv()} show a progress bar? Default: TRUE
+\item Should lengthy operations such as \code{radf_mc_cv()} show a progress bar? Default: TRUE
 }
 
 \code{exuber.parallel}
@@ -36,7 +36,7 @@ Testing for and dating periods of explosive
 
 \code{exuber.global_seed}
 \itemize{
-\item When chosen automatically feeds into all functions with random-number generation Default: NA
+\item When chosen automatically feeds into all functions with random-number generation. Default: NA
 }
 }
 

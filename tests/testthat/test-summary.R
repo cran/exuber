@@ -1,5 +1,12 @@
 context("summary")
 
+# Different minw
+mc_minw20 <- radf_mc_cv(100, nrep = 10, minw = 20)
+wb_minw20 <- radf_wb_cv(dta, nboot = 10, minw = 20)
+sb_minw20 <- radf_sb_cv(dta, nboot = 10, minw = 20)
+
+# skip("refactoring")
+
 test_that("printing coverage", {
   expect_error(capture.output(summary(radf_dta, mc)), regexp = NA)
   expect_error(capture.output(diagnostics(radf_dta, mc)), regexp = NA)
@@ -8,35 +15,40 @@ test_that("printing coverage", {
 })
 
 test_that("class checks", {
-  msgx <- "Argument 'object' should be of class 'radf'"
-  msgy <- "Argument 'cv' should be of class 'cv'"
-  expect_error(diagnostics(dta, mc), msgx)
-  expect_error(datestamp(dta, mc), msgx)
-  expect_error(diagnostics(radf_dta, dta), msgy)
-  expect_error(summary(radf_dta, dta), msgy)
-  expect_error(datestamp(radf_dta, dta), msgy)
+  # msgx <- "Argument 'object' should be of class 'radf'"
+  msg_y <- "Argument 'cv' should be of class 'radf_cv'"
+  # expect_error(diagnostics(dta, mc), NA, class = "error")
+  # expect_error(datestamp(dta, mc), msgx)
+  expect_error(diagnostics(radf_dta, dta), msg_y)
+  expect_error(summary(radf_dta, dta), msg_y)
+  expect_error(datestamp(radf_dta, dta), msg_y)
 })
 
+capture_print <- function(x, msg = "Cannot reject H0") {
+   any(grepl(msg, capture.output(print(x))))
+}
+
+
 test_that("error diagnostics", {
-  expect_message(print(
-    diagnostics(radf_div, mc)), "Cannot reject H0")
-  expect_message(
-    print(diagnostics(radf_95, mc)),
-    "Cannot reject H0 for significance level 95%"
+  expect_true(capture_print(diagnostics(radf_div, mc)))
+  expect_true(
+    capture_print(
+      diagnostics(radf_95, mc),
+      msg = "Rejects H0 at the 10% significance level")
   )
 })
 
 test_that("different minw", {
   msg <- "minimum window does not match"
-  expect_error(summary(radf_dta, mc2_minw20), msg)
-  expect_error(diagnostics(radf_dta, mc2_minw20), msg)
-  expect_error(datestamp(radf_dta, mc2_minw20), msg)
-  expect_error(summary(radf_dta, wb2_minw20), msg)
-  expect_error(diagnostics(radf_dta, wb2_minw20), msg)
-  expect_error(datestamp(radf_dta, wb2_minw20), msg)
-  expect_error(summary(radf_dta, sb2_minw20), msg)
-  expect_error(diagnostics(radf_dta, sb2_minw20), msg)
-  expect_error(datestamp(radf_dta, sb2_minw20), msg)
+  expect_error(summary(radf_dta, mc_minw20), msg)
+  expect_error(diagnostics(radf_dta, mc_minw20), msg)
+  expect_error(datestamp(radf_dta, mc_minw20), msg)
+  expect_error(summary(radf_dta, wb_minw20), msg)
+  expect_error(diagnostics(radf_dta, wb_minw20), msg)
+  expect_error(datestamp(radf_dta, wb_minw20), msg)
+  expect_error(summary(radf_dta, sb_minw20), msg)
+  expect_error(diagnostics(radf_dta, sb_minw20), msg)
+  expect_error(datestamp(radf_dta, sb_minw20), msg)
 })
 
 test_that("Correct output in summary/datestamp", {
@@ -60,7 +72,7 @@ withr::with_options(
     expect_error(datestamp(radf_dta, mc, option = "sadf"), regexp = NA)
     expect_error(autoplot(radf_dta, mc), regexp = NA)
 
-    # wokr here ---------------------------------------------------------------
+    # work here ---------------------------------------------------------------
 
     expect_error(autoplot(radf_dta, mc, option = "sadf"), regexp = NA)
   })
@@ -133,8 +145,7 @@ withr::with_options(
   test_that("no problem running summary (date, wb)", {
     expect_error(datestamp(radf_dta, wb), regexp = NA)
     expect_error(datestamp(radf_dta, wb, option = "sadf"), regexp = NA)
-    expect_error(autoplot(radf_dta, wb), regexp = NA)
-    expect_error(autoplot(radf_dta, wb, option = "sadf"), regexp = NA)
+    # expect_error(autoplot(radf_dta, wb), regexp = NA)
   })
 )
 
@@ -145,3 +156,4 @@ withr::with_options(
     expect_error(datestamp(radf_dta_lag1, wb, option = "sadf"), regexp = NA)
   })
 )
+

@@ -4,38 +4,60 @@
 \alias{radf}
 \title{Recursive Augmented Dickey-Fuller Test}
 \usage{
-radf(data, minw = NULL, lag = 0)
+radf(data, minw = NULL, lag = 0L)
 }
 \arguments{
-\item{data}{A univariate or multivariate numeric ts object, data.frame or matrix.
-The estimation process cannot handle NA values.}
+\item{data}{A univariate or multivariate numeric time series object, a numeric
+vector or matrix, or a data.frame. The object should not have any NA values.}
 
-\item{minw}{A positive integer. The minimum window size, which defaults to
-\eqn{(0.01 + 1.8/\sqrt(T))*T}{(0.01 + 1.8 / \sqrtT)*T}.}
+\item{minw}{A positive integer. The minimum window size (default =
+\eqn{(0.01 + 1.8/\sqrt(T))T}{(0.01 + 1.8 / \sqrtT)T}, where T denotes the sample size).}
 
-\item{lag}{A non-negative integer. The lag of the Augmented Dickey-Fuller regression.}
+\item{lag}{A non-negative integer. The lag length of the Augmented Dickey-Fuller regression (default = 0L).}
 }
 \value{
-A list that contains the t-statistic (sequence) for:
+A list that contains the unit root test statistics (sequence):
 \item{adf}{Augmented Dickey-Fuller}
 \item{badf}{Backward Augmented Dickey-Fuller}
 \item{sadf}{Supremum Augmented Dickey-Fuller}
 \item{bsadf}{Backward Supremum Augmented Dickey-Fuller}
 \item{gsadf}{Generalized Supremum Augmented Dickey-Fuller}
+\item{bsadf_panel}{Panel Backward Supremum Augmented Dickey-Fuller}
+\item{gsadf_panle}{Panel Generalized Supremum Augmented Dickey-Fuller}
 }
 \description{
-\code{radf} returns the t-statistics from a recursive Augmented Dickey-Fuller
-test.
+\code{radf} returns the recursive univariate and panel Augmented Dickey-Fuller test statistics.
+}
+\details{
+The \code{radf()} function is vectorized, i.e., it can handle multiple series
+at once, to improve efficiency. This property also enables the computation of panel
+statistics internally as a by-product of the univariate estimations with minimal
+additional cost incurred.
 }
 \examples{
 \donttest{
-# Simulate bubble processes
-dta <- data.frame(psy1 = sim_psy1(n = 100), psy2 = sim_psy2(n = 100))
+# We will use simulated data that are stored as data
+sim_data
 
-rfd <- radf(dta)
+rsim <- radf(sim_data)
+
+str(rsim)
+
+# We would also use data that contain a Date column
+sim_data_wdate
+
+rsim_wdate <- radf(sim_data_wdate)
+
+tidy(rsim_wdate)
+
+augment(rsim_wdate)
+
+tidy(rsim_wdate, panel = TRUE)
+
+head(index(rsim_wdate))
 
 # For lag = 1 and minimum window = 20
-rfd <- radf(dta, minw = 20, lag = 1)
+rsim_20 <- radf(sim_data, minw = 20, lag = 1)
 }
 }
 \references{
@@ -46,4 +68,9 @@ Economic Review, 52(1), 201-226.
 Phillips, P. C. B., Shi, S., & Yu, J. (2015). Testing for
 Multiple Bubbles: Historical Episodes of Exuberance and Collapse in the
 S&P 500. International Economic Review, 56(4), 1043-1078.
+
+Pavlidis, E., Yusupova, A., Paya, I., Peel, D., Martínez-García,
+E., Mack, A., & Grossman, V. (2016). Episodes of exuberance in housing markets:
+in search of the smoking gun. The Journal of Real Estate Finance and Economics,
+53(4), 419-449.
 }

@@ -1,3 +1,34 @@
+# exuber 0.4.0
+
+## Design
+
+We have the following design in mind for future scalability. If you want make inference about `radf` models, then the estimation can be achieved with `radf()` function and return an object of class `radf_obj`, and the critical values can be achieved with `radf_*_cv()` and return an object of class `radf_cv`.
+
+## Breaking changes
+
+* `autoplot()` for `radf` models has been refactored and new features have been added for more flexibility and conformity with the {ggplot} mindset.
+* Because of the change in `autoplot`, `ggarrange()` is now defunct.
+* `fortify()` methods have been replaced by `tidy()`, `augment()`, `tidy_join()` and `glance_join()` methods. `fortify()` methods are now defunct.
+* Also `glance()` is now defunct. The user can use `tidy()` with `panel=TRUE` instead.
+* Changed the names of:
+  - `mc_cv()` to `radf_mc_cv()`. `mc_cv()` is now deprecated.
+  - `mc_distr()` to `radf_mc_distr()`. `mc_distr()` is now deprecated.
+  - `wb_cv()` to `radf_wb_cv()`. `wb_cv()` is now deprecated.
+  - `wb_distr()` to `radf_wb_distr()`. `wb_distr()` is now deprecated.
+  - `sb_cv()` to `radf_sb_cv()`. `sb_cv()` is now deprecated.
+  - `sb_distr()` to `radf_sb_distr()`. `sb_distr()` is now deprecated.
+  - `crit` dataset to `radf_crit`.
+  - `col_names()` to `series_names()`.  `col_names()` is now deprecated.
+
+## exuberdata
+
+* We created a new package called `exuberdata` that accommodates critical values for up to 2000 observations. Critical values can be examined with `exuberdata::radf_crit2`. The package is created through `drat` R archive Template, and can be easily installed with `install.packages('exuberdata', repos = 'https://kvasilopoulos.github.io/drat/', type = 'source')` or through `install_exuberdata` wrapper function that is provided in `exuber`.
+
+## Improvements
+
+* The package `zoo` has been used as a dependency to import the method `index()`. 
+We made the decision to remove `zoo` and create a new method `index()` internally.
+
 # exuber 0.3.0
 
 ## Breaking changes

@@ -1,14 +1,14 @@
 context("radf")
 
 test_that("Right output", {
-  expect_s3_class(radf_dta, class = "radf")
+  expect_s3_class(radf_dta, class = "radf_obj")
   nm <- c("adf", "badf", "sadf", "bsadf", "gsadf", "bsadf_panel", "gsadf_panel")
   expect_output(str(radf_dta), "List of 7")
   expect_equal(names(radf_dta), nm)
   expect_output(str(attributes(radf_dta)), "List of 7")
   expect_equal(
     names(attributes(radf_dta)),
-    c("names", "index", "lag", "n", "minw", "col_names", "class")
+    c("names", "index", "lag", "n", "minw", "series_names", "class")
   )
 })
 
@@ -33,7 +33,7 @@ test_that("minw check radf", {
 })
 
 test_that("class check", {
-  expect_error(radf(as.list(dta)), "Unsupported class")
+  expect_error(radf(as.list(dta)), "unsupported class")
 })
 
 test_that("NA handling", {

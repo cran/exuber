@@ -1,6 +1,43 @@
 context("seed")
+skip(TRUE)
+# avail_cores <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+# options(exuber.ncores = 2)
+
+test_that("seed gets the same results",{
+  skip_on_cran()
+  options(exuber.parallel = TRUE)
+  expect_true(
+    all.equal(
+      mc_cv(10, nrep = 20, seed = 123),
+      mc_cv(10, nrep = 20, seed = 123)
+    )
+  )
+  options(exuber.parallel = FALSE)
+})
+
+test_that("seed gets the same results - wb",{
+  skip_on_cran()
+  options(exuber.parallel = TRUE)
+  expect_true(
+    all.equal(
+      wb_cv(dta, nboot = 20, seed = 123),
+      wb_cv(dta, nboot = 20, seed = 123)
+    )
+  )
+  options(exuber.parallel = FALSE)
+})
+
+# test_that("seed is the same with or without parallel", {
+#   skip_on_cran()
+#   options(exuber.parallel = TRUE)
+#   x <- mc_cv(10, nrep = 20, seed = 123)
+#   options(exuber.parallel = FALSE)
+#   y <- mc_cv(10, nrep = 20, seed = 123)
+#   expect_true(all.equal(x,y))
+# })
 
 test_that("local options", {
+  skip_on_cran()
   options(exuber.global_seed = NA)
   expect_false(
     isTRUE(
@@ -20,7 +57,8 @@ test_that("local options", {
   )
 })
 
-test_that("global options", {
+test_that("global options works", {
+  skip_on_cran()
   options(exuber.global_seed = 124)
   expect_true(
     isTRUE(
@@ -34,6 +72,7 @@ test_that("global options", {
 })
 
 test_that("local options overwrite global", {
+  skip_on_cran()
   options(exuber.global_seed = 124)
   expect_true(
     isTRUE(
@@ -43,7 +82,6 @@ test_that("local options overwrite global", {
       )
     )
   )
-
   expect_false(
     isTRUE(
       all.equal(
@@ -54,3 +92,4 @@ test_that("local options overwrite global", {
   )
   options(exuber.global_seed = NA)
 })
+
