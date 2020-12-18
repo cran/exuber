@@ -1,3 +1,9 @@
+# exuber 0.4.2
+
+* Include printing methods for `radf_obj` and `radf_cv`.
+* Removed unused class definitions.
+* Using `progress` package for progress_bar.
+
 # exuber 0.4.1
 
 Maintenance release for compatibility with dplyr v1.0.0.

@@ -51,10 +51,10 @@ get_rng_state <- function(seed) {
 retrieve_crit <- function(x) {
   nr <- NROW(index(x))
   if (nr > 5 && nr <= length(exuber::radf_crit)) {
-    message("Using `radf_crit` for `cv`.")
+    message_glue("Using `radf_crit` for `cv`.")
     return(exuber::radf_crit[[nr]])
   } else if (nr > length(exuber::radf_crit) && nr <= 2000) {
-    message("Using `exuberdata::radf_crit2` for `cv`.")
+    message_glue("Using `exuberdata::radf_crit2` for `cv`.")
     need_exuberdata()
     return(exuberdata::radf_crit2[[nr]])
   }else {
@@ -72,15 +72,16 @@ show_pb <- function() {
     !isTRUE(getOption("knitr.in.progress"))
 }
 
-set_pb <- function(iter, width = getOption("width") - 10L) {
+#' @importFrom progress progress_bar
+set_pb <- function(iter,width = getOption("width") - 10L) {
   if (show_pb()) {
-    txtProgressBar(min = 1, max = iter - 1, style = 3, char = "-", width = width)
+    progress_bar$new(format = "[:bar] (:percent)", total = iter, width = width)
   }
 }
 
 set_pb_opts <- function(pb) {
   if (show_pb()) {
-    list(progress = function(n) setTxtProgressBar(pb, n))
+    list(progress = function(n) pb$tick())
   }else{
     list(progress = NULL)
   }

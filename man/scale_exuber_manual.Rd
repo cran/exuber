@@ -25,7 +25,7 @@ theme_exuber(
 
 \item{size_values}{a set of size values to map data values to.}
 
-\item{base_size}{base font size}
+\item{base_size}{base font size, given in pts.}
 
 \item{base_family}{base font family}
 
@@ -35,5 +35,6 @@ theme_exuber(
 }
 \description{
 \code{scale_exuber_manual} allows specifying the color, size and linetype in
-\code{autoplot.radf_obj} mappings. \code{theme_exuber} is a complete theme which control all non-data display.
+\code{autoplot.radf_obj} mappings. \code{theme_exuber} is a complete theme which control
+all non-data display.
 }

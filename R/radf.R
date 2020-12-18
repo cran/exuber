@@ -20,7 +20,7 @@
 #'   \item{bsadf}{Backward Supremum Augmented Dickey-Fuller}
 #'   \item{gsadf}{Generalized Supremum Augmented Dickey-Fuller}
 #'   \item{bsadf_panel}{Panel Backward Supremum Augmented Dickey-Fuller}
-#'   \item{gsadf_panle}{Panel Generalized Supremum Augmented Dickey-Fuller}
+#'   \item{gsadf_panel}{Panel Generalized Supremum Augmented Dickey-Fuller}
 #'
 #' @references Phillips, P. C. B., Wu, Y., & Yu, J. (2011). Explosive Behavior
 #' in The 1990s Nasdaq: When Did Exuberance Escalate Asset Values? International
@@ -108,8 +108,26 @@ radf <- function(data, minw = NULL, lag = 0L) {
       lag = lag,
       series_names = snames,
     ) %>%
-    add_class("radf_obj", "obj")
+    add_class("radf_obj")
 }
+
+#' @export
+print.radf_obj <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat_line()
+  cat_rule(
+    left = glue("radf (minw = {get_minw(x)}, lag = {get_lag(x)})")
+  )
+  cat_line()
+
+  print(format(as.data.frame(tidy(x)),
+               digits = digits), print.gap = 2L, row.names = FALSE)
+  cat_line()
+
+  print(format(as.data.frame(tidy(x, panel = TRUE)),
+               digits = digits), print.gap = 2L, row.names = FALSE)
+  cat_line()
+}
+
 
 #' @importFrom stats embed
 unroot <- function(x, lag = 0) {

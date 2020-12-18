@@ -54,31 +54,28 @@ datestamp.radf_obj <- function(object, cv = NULL, min_duration = 0L,
   assert_match(object, cv)
 
   idx <- index(object)
+  idx_trunc <- if (is_sb(cv)) index(cv, trunc = TRUE) else index(object, trunc = TRUE)
   snames <- series_names(object)
   pos <- diagnostics_internal(object, cv, option = option)$positive
 
-  filter_option <- if (option == "gsadf") "bsadf" else  "badf"
+  filter_option <- if (option == "gsadf") c("bsadf_panel", "bsadf") else c("bsadf_panel", "badf")
   ds_tbl <- augment_join(object, cv) %>%
-    filter(sig == 95, name %in% c(filter_option, "bsadf_panel")) %>% # either {bsadf, badf} or bsadf_panel
+    filter(sig == 95, name %in% filter_option) %>% # either {bsadf, badf} or bsadf_panel
     mutate(ds_lgl = tstat > crit)
 
-  ds <- list()
-  for (nm in pos) {
-    ds[[nm]] <- filter(ds_tbl, id == nm) %>%
-      pull(ds_lgl) %>%
-      which()
-  }
+  ds <- map(pos, ~ filter(ds_tbl, id == .x) %>% pull(ds_lgl) %>% which())
   ds_stamp <- map(ds, ~ stamp(.x) %>% filter(Duration >= min_duration) %>% as.matrix())
   idx_trunc <- if (is_sb(cv)) index(cv, trunc = TRUE) else index(object, trunc = TRUE)
   ds_stamp_index <- map(ds_stamp, stamp_to_index, idx_trunc) # index has to from cv to iclude sb_cv(+2)
 
-  # min_duration may cause to exclude periods or the whole sample
   min_reject <- map_lgl(ds_stamp, ~ length(.x) == 0)
   res <- ds_stamp_index[!min_reject]
   names(res) <- pos[!min_reject]
+
   if (length(res) == 0) {
-    stop_glue("Argument 'min_duration' excludes all explosive periods")
+    warning_glue("Argument 'min_duration' excludes all explosive periods")
   }
+
   # store to dummy {0, 1}
   reps <- if (is_sb(cv)) 1 else match(pos, series_names(object))
   dms <- list(seq_along(idx), if (is_sb(cv)) "panel" else snames[reps])
@@ -99,12 +96,15 @@ datestamp.radf_obj <- function(object, cv = NULL, min_duration = 0L,
     min_duration = min_duration,
     option = option,
     method = get_method(cv),
-    class = c("ds_radf", "ds", "list")
+    class = c("ds_radf", "list")
   )
 }
 
 #' @export
 print.ds_radf <- function(x, ...) {
+  if (length(x) == 0) {
+    return(invisible())
+  }
   cli::cat_line()
   cli::cat_rule(
     left = glue("Datestamp (min_duration = {get_min_dur(x)})"),
@@ -112,6 +112,26 @@ print.ds_radf <- function(x, ...) {
   cli::cat_line()
   print.listof(x)
 }
+
+# stamp_obj <- stamp_object(object, cv, pos = pos, filter_name = filter_option,
+#                     min_duration = min_duration, idx_trunc = idx_trunc)
+# res <- stamp_obj$res
+# ds <- stamp_obj$ds
+# stamp_object <- function(object, cv, pos, filter_sig = 95, filter_name, min_duration, idx_trunc) {
+#
+#   ds_tbl <- augment_join(object, cv) %>%
+#     filter(sig %in% filter_sig, name %in% filter_name) %>% # either {bsadf, badf} or bsadf_panel
+#     mutate(ds_lgl = tstat > crit)
+#
+#   ds <- map(pos, ~ filter(ds_tbl, id == .x) %>% pull(ds_lgl) %>% which())
+#   ds_stamp <- map(ds, ~ stamp(.x) %>% filter(Duration >= min_duration) %>% as.matrix())
+#   ds_stamp_index <- map(ds_stamp, stamp_to_index, idx_trunc)
+#
+#   min_reject <- map_lgl(ds_stamp, ~ length(.x) == 0)
+#   res <- ds_stamp_index[!min_reject]
+#   names(res) <- pos[!min_reject]
+#   list(res = res, ds = ds)
+# }
 
 # identification of periods
 stamp <- function(x) {
@@ -124,12 +144,13 @@ stamp <- function(x) {
 
 stamp_to_index <- function(x, idx) {
   data.frame(
-    "Start" = idx[x[, 1]],
-    "End" = idx[x[, 2]],
-    "Duration" = x[, 3],
+    "Start" = idx[x[, "Start"]],
+    "End" = idx[x[, "End"]],
+    "Duration" = x[, "Duration"],
     row.names = NULL
   )
 }
+
 
 # TODO: Include Peak
 # peak <- numeric()

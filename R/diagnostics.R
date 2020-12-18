@@ -79,9 +79,7 @@ diagnostics.radf_obj <- function(object, cv = NULL,
       method = get_method(cv),
       option = option,
     ) %>%
-    add_class(
-      "dg_radf", "dg"
-    )
+    add_class("dg_radf")
 }
 
 #' @export
@@ -105,7 +103,7 @@ diagnostics_internal <- function(...) {
   if (purrr::is_bare_character(dg$positive, n = 0)) {
     stop_glue("Cannot reject H0")
   }
-  dg
+  unclass(dg)
 }
 
 

@@ -54,7 +54,8 @@ radf_sb_ <-  function(data, minw, lag, nboot, seed = NULL) {
     .inorder = FALSE
   ) %fun% {
     boot_index <- sample(1:nres, replace = TRUE)
-    if (show_pb && !do_par) setTxtProgressBar(pb, i)
+    if (show_pb && !do_par)
+      pb$tick()
     for (j in 1:nc) {
       boot_res <- resmat[boot_index, j]
       dboot_res <- boot_res - mean(boot_res)
@@ -150,7 +151,7 @@ radf_sb_cv <- function(data, minw = NULL, lag = 0L,
     list(gsadf_panel_cv = gsadf_crit,
          bsadf_panel_cv = bsadf_crit) %>%
       inherit_attrs(results) %>%
-      add_class("radf_cv", "sb_cv","cv")
+      add_class("radf_cv", "sb_cv")
 
 }
 
@@ -163,5 +164,5 @@ radf_sb_distr <- function(data, minw = NULL, lag = 0L, nboot = 500L, seed = NULL
 
   c(results$gsadf_panel) %>%
     inherit_attrs(results) %>%
-    add_class("radf_distr", "sb_distr","distr")
+    add_class("radf_distr", "sb_distr")
 }

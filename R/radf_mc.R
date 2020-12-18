@@ -2,6 +2,10 @@
 #' @importFrom doRNG `%dorng%`
 radf_mc_ <- function(n, minw, nrep, seed = NULL) {
 
+  if(!is.null(dim(n))) {
+    message_glue("Did you use `data` instead of `n`? Using `NROW(n)` instead.")
+    n <- NROW(n)
+  }
   assert_n(n)
   assert_positive_int(n, greater_than = 5)
   assert_positive_int(nrep)
@@ -30,7 +34,7 @@ radf_mc_ <- function(n, minw, nrep, seed = NULL) {
     .inorder = FALSE
   ) %fun% {
     if (show_pb && !do_par)
-      setTxtProgressBar(pb, i)
+      pb$tick()
     y <- cumsum(rnorm(n))
     yxmat <- unroot(y)
     rls_gsadf(yxmat, min_win = minw)
@@ -140,7 +144,7 @@ radf_mc_cv <- function(n, minw = NULL, nrep = 1000L, seed = NULL) {
     bsadf_cv = bsadf_crit
   ) %>%
     inherit_attrs(results) %>%
-    add_class("radf_cv", "mc_cv","cv")
+    add_class("radf_cv", "mc_cv")
 
 }
 
@@ -157,6 +161,6 @@ radf_mc_distr <- function(n, minw = NULL, nrep = 1000L, seed = NULL) {
     gsadf_distr = results$gsadf
   ) %>%
     inherit_attrs(results) %>%
-    add_class("radf_distr", "mc_distr", "distr")
+    add_class("radf_distr", "mc_distr")
 
 }
