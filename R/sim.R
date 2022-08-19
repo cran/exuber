@@ -256,6 +256,7 @@ sim_ps1 <- function(n, te = 0.4 * n, tf = te + 0.2 * n , tr = tf + 0.1*n,
   assert_between(beta, 0, 1)
   stopifnot(eta > 0.5, sigma >= 0)
 
+  set_rng(seed)
   drift <- c*n^(-eta)
   delta <- 1 + c1 * n^(-alpha)
   gamma <- 1 - c2 * n^(-beta)
@@ -299,6 +300,7 @@ sim_ps2 <- function(n,
   assert_between(beta, 0, 1)
   stopifnot(eta > 0.5, sigma >= 0)
 
+  set_rng(seed)
   drift <- c*n^(-eta)
   delta <- 1 + c1 * n^(-alpha)
   gamma <- 1 - c2 * n^(-beta)
@@ -554,16 +556,19 @@ sim_div <- function(n, mu, sigma, r = 0.05,
 
 }
 
+
+# Methods -----------------------------------------------------------------
+
+
 #' @export
 print.sim <- function(x, ...) {
   attributes(x) <- NULL
   print(x)
 }
 
-#' @importFrom vctrs vec_data
 #' @export
 format.sim <- function(x, ...) {
-  out <- signif(vec_data(x), 3)
+  out <- signif(x, 3)
   out[is.na(x)] <- NA
   out
 }

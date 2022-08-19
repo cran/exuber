@@ -1,5 +1,7 @@
+#
 #' @importFrom rlang is_scalar_atomic
 #' @importFrom doRNG `%dorng%`
+#' @importFrom doSNOW registerDoSNOW
 radf_mc_ <- function(n, minw, nrep, seed = NULL) {
 
   if(!is.null(dim(n))) {
@@ -89,10 +91,8 @@ radf_mc_ <- function(n, minw, nrep, seed = NULL) {
 #' @seealso \code{\link{radf_wb_cv}} for wild bootstrap critical values and
 #' \code{\link{radf_sb_cv}} for sieve bootstrap critical values
 #'
-#' @importFrom doSNOW registerDoSNOW
 #' @importFrom parallel detectCores makeCluster stopCluster
 #' @importFrom foreach foreach %do%
-#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats quantile rnorm runif
 #' @importFrom lubridate is.Date
 #' @importFrom purrr detect_index

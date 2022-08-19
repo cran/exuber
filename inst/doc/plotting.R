@@ -51,14 +51,14 @@ joined %>%
   ggplot(aes(x = index)) +
   geom_line(aes(y = tstat)) +
   geom_line(aes(y = crit)) +
-  facet_grid(sig + name ~  id  , scales = "free_y")
+  facet_grid(sig + stat ~  id  , scales = "free_y")
 
 ## ----facet-joined-theme-exuber, warning=FALSE---------------------------------
 joined %>%
   pivot_longer(cols = c("tstat", "crit"), names_to = "nms") %>% 
   ggplot(aes(x = index, y = value, col = nms)) +
   geom_line() +
-  facet_grid(sig + name ~  id  , scales = "free_y") +
+  facet_grid(sig + stat ~  id  , scales = "free_y") +
   scale_exuber_manual() +
   theme_exuber()
 

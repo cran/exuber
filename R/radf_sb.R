@@ -18,6 +18,7 @@ radf_sb_ <-  function(data, minw, lag, nboot, seed = NULL) {
 
   set_rng(seed)
   for (j in 1:nc) {
+    # TODO make this more robust maybe se unroot
     ys <- y[, j]
     dy <- ys[-1] - ys[-nr]
     ym <- embed(dy, lag + 2)
@@ -101,10 +102,8 @@ radf_sb_ <-  function(data, minw, lag, nboot, seed = NULL) {
 #' @inheritParams radf
 #' @inheritParams radf_wb_cv
 #'
-#' @importFrom doSNOW registerDoSNOW
 #' @importFrom parallel detectCores makeCluster stopCluster
 #' @importFrom foreach foreach %dopar% %do%
-#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom stats quantile lm
 #' @export
 #'

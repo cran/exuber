@@ -1,3 +1,27 @@
+# exuber 1.0.0
+
+This first major release accompanies the publication of an article in the Journal of Statistical Software:
+
+
+
+### `augment` method for `radf_obj` and `radf_cv`
+* New arg `trunc`
+* Fixed inconsistencies among functions.
+
+* Now radf stores the data that are later can be accessed with `mat`+
+* Advanced features on datestamping: New columns that indicate:
+  - Signal
+  - Peak
+  - Ongoing
+  - Nonrejected
+* New datestamping procedure `rev_radf` etc.
+* New bootstrap procedure `radf_wb_cv2` and `radf_wb_distr2`
+* New coloring convention for plotting `ds` and `obj` classes
+
+## Bug Fixes
+
+* Now autoplot can include periods that have an ongoing bubble
+
 # exuber 0.4.2
 
 * Include printing methods for `radf_obj` and `radf_cv`.

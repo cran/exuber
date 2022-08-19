@@ -1,10 +1,4 @@
 context("summary")
-
-# Different minw
-mc_minw20 <- radf_mc_cv(100, nrep = 10, minw = 20)
-wb_minw20 <- radf_wb_cv(dta, nboot = 10, minw = 20)
-sb_minw20 <- radf_sb_cv(dta, nboot = 10, minw = 20)
-
 # skip("refactoring")
 
 test_that("printing coverage", {
@@ -34,11 +28,16 @@ test_that("error diagnostics", {
   expect_true(
     capture_print(
       diagnostics(radf_95, mc),
-      msg = "Rejects H0 at the 10% significance level")
+      msg = "Rejects H0 at the")
   )
 })
 
 test_that("different minw", {
+  # Different minw
+  mc_minw20 <- radf_mc_cv(100, nrep = 10, minw = 20)
+  wb_minw20 <- radf_wb_cv(dta, nboot = 10, minw = 20)
+  sb_minw20 <- radf_sb_cv(dta, nboot = 10, minw = 20)
+
   msg <- "minimum window does not match"
   expect_error(summary(radf_dta, mc_minw20), msg)
   expect_error(diagnostics(radf_dta, mc_minw20), msg)
@@ -117,8 +116,7 @@ withr::with_options(
   })
 )
 
-index(radf_dta) <- seq(from = as.Date("1991/10/01"),
-                       by = "month", length.out = 100)
+index(radf_dta) <- seq(from = as.Date("1991/10/01"), by = "month", length.out = 100)
 
 withr::with_options(
   c(warn = 2),

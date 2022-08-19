@@ -5,6 +5,15 @@
   else x
 }
 
+
+`%NULL%` <- function(cond, x) {
+  if(isTRUE(cond)) {
+    x
+  } else{
+    NULL
+  }
+}
+
 "%ni%" <- Negate("%in%")
 
 # For simulation ----------------------------------------------------------
@@ -102,20 +111,28 @@ array_to_list <- function(x, var) {
 }
 
 #' @importFrom tibble add_column
-add_key <- function(x, attr_from) {
-  attr_lag <-  get_lag(attr_from) #else 0
-  if (is.null(attr_lag)) {
-    add_lag <- 0
-  } else{
-    if (is_sb(attr_from) && attr_lag != 0) {
-      add_lag <- attr_lag + 2
-    }else{
-      add_lag <- attr_lag
-    }
+add_key <- function(x, attr_from, trunc = FALSE) {
+  nkey <- get_trunc(attr_from)
+  if(trunc){
+    wkey <- add_column(x , key = (nkey + 1):(nrow(x) + nkey))
+  }else{
+    wkey <- add_column(x, key = 1:nrow(x))
   }
-  nkey <- get_minw(attr_from) + add_lag
-  x %>% add_column(key = (nkey + 1):(nrow(.) + nkey))
+  wkey
 }
+
+na_pad_minw <- function(x, attr_from) {
+  trunc <- get_trunc(attr_from)
+  cx <- x[1:trunc, ]
+  cx[1:trunc, ] <- NA
+  bind_rows(cx, x)
+}
+
+add_index <- function(x, attr_from, trunc = FALSE) {
+  idx <- index(x, trunc = trunc)
+  add_column(x, index = idx)
+}
+
 
 # predicates --------------------------------------------------------------
 

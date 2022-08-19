@@ -18,8 +18,7 @@ vector or matrix, or a data.frame. The object should not have any NA values.}
 
 \item{nboot}{A positive integer. Number of bootstraps (default = 500L).}
 
-\item{dist_rad}{Logical. If \code{TRUE} then  the Rademacher distribution
-will be used.}
+\item{dist_rad}{Logical. If TRUE then the Rademacher distribution will be used.}
 
 \item{seed}{An object specifying if and how the random number generator (rng)
 should be initialized. Either NULL or an integer will be used in a call to
