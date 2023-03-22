@@ -1,4 +1,4 @@
-952996b37b3d6104488e52dcc1ff0c3d *DESCRIPTION
+395f20f88b89a8ca75f28bc24813d73e *DESCRIPTION
 61e1870fb47b544c1fe387a886f41e43 *NAMESPACE
 dfd561320665b0b18c61a353cab2515f *NEWS.md
 22be66dfe7fad0dd6b928baa6518eb9b *R/RcppExports.R
@@ -11,11 +11,11 @@ bb29fe6d282d80e033c84b5c46a07936 *R/index.R
 cf3442912bc9cdd7afa980eb37d33329 *R/parse_data.R
 b7f88ee80f67c81e063767845ce18456 *R/radf-autoplot.R
 e3044160514a8a7a9df5120a872b8b4d *R/radf-methods.R
-379e6edeae8a70af1f9c7ea2a5184386 *R/radf-tidiers.R
+84e7214bbed44fb3f37dd84dfbc2bf5a *R/radf-tidiers.R
 81b1fd9e99b6479c7d7f1afa887d87a2 *R/radf_.R
 efc16dc99e5277e719089d09a7c38ccf *R/radf_mc.R
 0784d659de23dfc4f81b95df1c36d11b *R/radf_sb.R
-56792643cbb94dd66c6e8e6f5b9bfeb8 *R/radf_wb.R
+44e522626a4aae0e17b3a611e2c1ec10 *R/radf_wb.R
 a1770688a2198a6fd0c5ca1aaf5cfab0 *R/reexports.R
 6f3077ce5cdacf353b30f05599b7ecf8 *R/reg-helper.R
 e727b992d5f710fd41695b459b02168d *R/series_names.R
@@ -23,7 +23,7 @@ e727b992d5f710fd41695b459b02168d *R/series_names.R
 12efa730c223ec95272563b285561437 *R/unroot.R
 634a2893c40e4ecbe7775742860b7077 *R/utils-attrs.R
 2ef3c5af67d7c22de40332029f0b8858 *R/utils-defensive.R
-d7fe7a533487608b914a969c77193382 *R/utils.R
+36172dea73cb39df603a4247a3d045d2 *R/utils.R
 b8baed4d3d2bcefa1159bcf6afbdd97d *R/zzz.R
 2c9a3ea424c060cbeabec41e2706b663 *README.md
 cb4924f3573383fca290a0a8e2ca5294 *build/partial.rdb
